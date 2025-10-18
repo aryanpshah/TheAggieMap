@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 from typing import List, Dict, Any
-
+from perplexity import Perplexity
 
 class TAMUFacilityTracker:
     """Track TAMU recreation facilities, libraries, and upcoming events."""
@@ -257,8 +257,82 @@ class TAMUFacilityTracker:
         self.find_best_study_spot()
         self.find_best_workout_spot()
 
+    def load_all_data(self):
+        self.data = {
+            "libraries": self.fetch_library_data(),
+            "rec": self.fetch_rec_data(),
+            "events": self.fetch_event_data(limit=50)
+        }
+        print("✅ All data loaded successfully!")
+
+    
+
+    def ask_perplexity(self, prompt: str):
+        
+
+        # Define the system prompt right here
+        system_prompt = """
+        You are a concise TAMU campus assistant.
+
+        - You have live data on library occupancies (percentfull), recreation facilities, and events.
+        - Only return exactly what the user asked for. Do not add extra explanations or alternatives.
+        - If the user asks for top 3 study spots, return only a list of the 3 locations with their current % full and available seats.
+        - Output in simple readable format.
+        - Do not hallucinate; rely only on provided data.
+        """
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"""
+            User Query: {prompt}
+            Here is the live TAMU data:
+            {self.data}
+
+        Return only the top 3 results in a short, plain list with name, % full, and available seats.
+        """}
+            ]
+
+        client = Perplexity()
+
+        response = client.chat.completions.create(
+            model="sonar",
+            messages=messages
+        )
+
+        print(response.choices[0].message.content)
+
+
+
+
+
+
 
 if __name__ == "__main__":
+    SYSTEM_PROMPT = """
+    You are a concise TAMU campus assistant.
+
+    - You have live data on library occupancies (percentfull), recreation facilities, and events.
+    - Only return exactly what the user asked for. Do not add extra explanations or alternatives.
+    - If the user asks for top 3 study spots, return only a list of the 3 locations with their current % full and available seats.
+    - Output in simple readable format.
+    - Do not hallucinate; rely only on provided data.
+    """
+
     tracker = TAMUFacilityTracker()
-    tracker.get_full_report()
-    tracker.display_events(limit=10)
+    tracker.load_all_data()
+
+    while True:
+        query = input("\n🗣️ What can I help you find on campus today?\n> ").strip()
+        if query.lower() in {"exit", "quit"}:
+            print("👋 Goodbye!")
+            break
+        tracker.ask_perplexity(query)
+
+
+    
+    
+
+
+    
+
+
