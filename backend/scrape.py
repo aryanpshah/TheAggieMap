@@ -288,7 +288,7 @@ class TAMUFacilityTracker:
             Here is the live TAMU data:
             {self.data}
 
-        Return only the top 3 results in a short, plain list with name, % full, and available seats.
+        Return only the top 3 results in a short, plain list with name, % full, and available seats and an assuring message before.
         """}
             ]
 
@@ -300,11 +300,6 @@ class TAMUFacilityTracker:
         )
 
         print(response.choices[0].message.content)
-
-
-
-
-
 
 
 if __name__ == "__main__":
