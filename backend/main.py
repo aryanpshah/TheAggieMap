@@ -7,6 +7,7 @@ from perplexity import Perplexity
 from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import random
 
 load_dotenv()
 
@@ -280,7 +281,47 @@ class TAMUFacilityTracker:
             "events": self.fetch_event_data(limit=50)
         }
         print("✅ All data loaded successfully!")
+    
+    def get_all_locations_with_events(self) -> List[Dict[str, float]]:
+        """
+        Returns a list of dictionaries with location and occupancy percentage for:
+        - Rec facilities (real occupancy)
+        - Libraries (real occupancy)
+        - Events (random capacities since actual occupancy is unknown)
         
+        Example: [{"location": "Rec Center", "percent_full": 60.0}, ...]
+        """
+        result = []
+
+        # --- Rec Facilities ---
+        rec_facilities = self.fetch_rec_data()
+        for f in rec_facilities:
+            name = f.get("LocationName", "Unknown")
+            current = f.get("LastCount", 0)
+            total = f.get("TotalCapacity", 1)  # avoid division by zero
+            percent = round((current / total) * 100, 1)
+            result.append({"location": name, "percent_full": percent})
+
+        # --- Libraries ---
+        libraries = self.fetch_library_data()
+        for lib in libraries:
+            name = lib.get("name", "Unknown")
+            max_cap = lib.get("max", 1)  # avoid division by zero
+            remaining = lib.get("remaining", 0)
+            current = max_cap - remaining
+            percent = round((current / max_cap) * 100, 1)
+            result.append({"location": name, "percent_full": percent})
+
+        # --- Events ---
+        events = self.fetch_event_data(limit=50)
+        for event in events:
+            # Use the event's location as the location name
+            location_name = event.get("location", "Unknown Event Location")
+            # Random occupancy percentage between 10% and 100%
+            percent = round(random.uniform(10, 100), 1)
+            result.append({"location": location_name, "percent_full": percent})
+
+        return result
 
     def ask_perplexity(self, prompt: str):
         
@@ -291,7 +332,7 @@ class TAMUFacilityTracker:
 
         - You have live data on library occupancies (percentfull), recreation facilities, and events.
         - Only return exactly what the user asked for. Do not add extra explanations or alternatives.
-        - If the user asks for top 3 study spots, return only a list of the 3 locations with their current % full and available seats.
+        - Unless the user specifies an amount or preference, return only a list of the 3 locations with their current % full and available seats based on most available spots.
         - Output in simple readable format.
         - Do not hallucinate; rely only on provided data.
         """
@@ -303,7 +344,7 @@ class TAMUFacilityTracker:
             Here is the live TAMU data:
             {self.data}
 
-        Return only the top 3 results in a short, plain list with name, % full, and available seats and an assuring message before.
+        Unless the user specifies an amount or preference, return only the top 3 results in a short, plain list with name, % full, and available seats and an assuring message before.
         """}
             ]
 
@@ -347,41 +388,10 @@ def ask_perplexity(request: QueryRequest):
     result = buffer.getvalue().strip()
     return {"response": result}
 
+@app.get("/retrieve")
+def retrieve_locations():
+    """
+    Retrieve all locations (rec facilities, libraries, events) with occupancy percentages.
+    """
+    return tracker.get_all_locations_with_events()
 
-
-@app.get("/api/health")
-def health():
-    return {"ok": True}
-
-
-@app.get("/api/suggested")
-def suggested():
-    return [
-        {
-            "id": "evans-2f",
-            "name": "Evans Library 2F",
-            "distanceMeters": 420,
-            "busyScore": 22,
-            "status": "Quiet",
-            "tags": ["Solo", "Outlets", "Sunlight"],
-            "imageUrl": "/og-image.png",
-        },
-        {
-            "id": "zach-atrium",
-            "name": "ZACH Atrium",
-            "distanceMeters": 760,
-            "busyScore": 58,
-            "status": "Moderate",
-            "tags": ["Group", "Open seating"],
-            "imageUrl": "/og-image.png",
-        },
-        {
-            "id": "sbisa",
-            "name": "Sbisa Dining",
-            "distanceMeters": 300,
-            "busyScore": 34,
-            "status": "Quiet",
-            "tags": ["Food", "Short line"],
-            "imageUrl": "/og-image.png",
-        },
-    ]
