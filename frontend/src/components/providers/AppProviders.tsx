@@ -2,7 +2,7 @@
 
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import theme from "../../lib/theme";
+import aggieTheme from "../../theme/aggieTheme";
 
 export default function AppProviders({
   children,
@@ -11,7 +11,7 @@ export default function AppProviders({
 }) {
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={aggieTheme}>
         <CssBaseline />
         {children}
       </ThemeProvider>

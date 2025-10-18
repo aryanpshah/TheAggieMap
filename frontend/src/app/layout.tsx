@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import AppProviders from "../components/providers/AppProviders";
+import { LocationProvider } from "../context/LocationContext";
 import "../../styles/globals.css";
 
 const montserrat = Montserrat({
@@ -43,7 +44,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <body>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            <LocationProvider>{children}</LocationProvider>
+          </AppProviders>
         </body>
       </html>
     </ClerkProvider>
