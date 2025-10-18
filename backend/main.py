@@ -6,6 +6,9 @@ from typing import List, Dict, Any
 from perplexity import Perplexity
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="The Aggie Map API")
 
