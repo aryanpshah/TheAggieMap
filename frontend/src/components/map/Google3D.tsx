@@ -124,7 +124,7 @@ export default function Google3D({ points, center }: Google3DProps) {
       const radius = radiusFor(point.capacity);
 
       const content = document.createElement("div");
-      const size = Math.max(16, radius * 14);
+      const size = Math.max(24, radius * 6);
       content.style.width = `${size}px`;
       content.style.height = `${size}px`;
       content.style.background = color;

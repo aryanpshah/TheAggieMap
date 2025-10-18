@@ -56,6 +56,7 @@ export default function Leaflet2D({ points, center, zoom = 16 }: Leaflet2DProps)
                 color,
                 fillColor: color,
                 fillOpacity: 0.7,
+                weight: 2,
               }}
             >
               <Popup>

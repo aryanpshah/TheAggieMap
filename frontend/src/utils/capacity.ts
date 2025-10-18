@@ -24,6 +24,6 @@ export function capacityToColor(value: number): CapacityColor {
 
 export function radiusFor(_value: number): number {
   void _value;
-  // TODO: scale marker radius by capacity; using constant placeholder for now.
-  return 1;
+  // TODO: scale marker radius by capacity; using dynamic sizing later.
+  return 8;
 }
