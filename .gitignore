@@ -39,3 +39,4 @@ Thumbs.db
 .turbo/
 .parcel-cache/
 .eslintcache
+node_modules

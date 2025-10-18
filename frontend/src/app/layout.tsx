@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import AppProviders from "../components/providers/AppProviders";
 import "../../styles/globals.css";
 
@@ -35,14 +36,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${montserrat.variable} ${inter.variable}`}
-      suppressHydrationWarning
-    >
-      <body>
-        <AppProviders>{children}</AppProviders>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en"
+        className={`${montserrat.variable} ${inter.variable}`}
+        suppressHydrationWarning
+      >
+        <body>
+          <AppProviders>{children}</AppProviders>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
