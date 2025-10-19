@@ -9,7 +9,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Shell from "../layout/Shell";
-import CrowdPingForm, { type CrowdPingFormValues } from "../../components/crowdping/CrowdPingForm";
+import CrowdPingForm from "../../components/crowdping/CrowdPingForm";
 import { useReferenceLocation } from "../../hooks/useReferenceLocation";
 import type { LatLng } from "../../utils/distance";
 
@@ -30,7 +30,7 @@ export default function CrowdPingPage() {
     return null;
   };
 
-  const handleSubmit = async (values: CrowdPingFormValues) => {
+  const handleSubmit: () => Promise<void> = async () => {
     resolveCoord(); // trigger permission prompt if available, though not used currently
     setFormKey((prev) => prev + 1);
     setSnackbar({ open: true, message: "Ping recorded" });
