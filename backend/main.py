@@ -8,6 +8,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import random
+from urllib.parse import quote
+import webbrowser
 
 load_dotenv()
 
@@ -394,4 +396,37 @@ def retrieve_locations():
     Retrieve all locations (rec facilities, libraries, events) with occupancy percentages.
     """
     return tracker.get_all_locations_with_events()
+
+class EventRequest(BaseModel):
+    text: str
+    start: str  # YYYYMMDDTHHMMSS±HHMM
+    end: str    # YYYYMMDDTHHMMSS±HHMM
+    details: str = ""
+    location: str = ""
+
+def generate_google_calendar_link(event: dict) -> str:
+    """
+    Generate a Google Calendar event creation URL and open it automatically.
+    """
+    base_url = "https://calendar.google.com/calendar/r/eventedit?"
+    params = (
+        f"text={quote(event.get('text', ''))}"
+        f"&dates={event.get('start','')}/{event.get('end','')}"
+        f"&details={quote(event.get('details',''))}"
+        f"&location={quote(event.get('location',''))}"
+    )
+
+    link = base_url + params
+    webbrowser.open(link)  # Opens the link automatically on the server
+    return link
+
+@app.post("/create-event")
+def create_event(event: EventRequest):
+    """
+    Endpoint to generate a Google Calendar link and open it automatically.
+    """
+    event_dict = event.dict()
+    link = generate_google_calendar_link(event_dict)
+    return {"message": "Google Calendar link opened on the server!", "link": link}
+
 
