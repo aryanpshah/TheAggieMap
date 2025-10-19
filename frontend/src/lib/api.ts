@@ -1,7 +1,6 @@
 import type { SuggestedCard } from "./types";
 
-export const BASE_API_URL =
-  process.env.NEXT_PUBLIC_BASE_API_URL ?? "http://142.93.69.165:8000";
+export const BASE_API_URL = "http://142.93.69.165:8000";
 
 export type OccupancyRecord = {
   location: string;
