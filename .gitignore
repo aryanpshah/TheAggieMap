@@ -13,6 +13,11 @@ backend/__pycache__/
 backend/.pytest_cache/
 backend/.mypy_cache/
 backend/.ruff_cache/
+backend/node_modules/
+
+# Global virtual environments
+.venv/
+venv/
 
 # Environment files
 .env

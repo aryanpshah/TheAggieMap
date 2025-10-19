@@ -1,218 +1,331 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
-import Collapse from "@mui/material/Collapse";
-import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
-import Skeleton from "@mui/material/Skeleton";
+import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import CloseIcon from "@mui/icons-material/Close";
-import { LocationProvider, useLocationContext } from "../context/LocationContext";
-import useGoogleMapsClient from "../hooks/useGoogleMapsClient";
-import { getSouthsideCommonsAnchor, SOUTHSIDE_COMMONS_FALLBACK } from "../utils/places";
-import { formatMiles } from "../utils/distance";
+import { alpha } from "@mui/material/styles";
+import Shell from "../app/layout/Shell";
+import {
+  DINING_HALLS,
+  LIBRARIES,
+  REC,
+  STUDY_SPOTS,
+  type ExploreItem,
+} from "../data/exploreSeed";
+import { useReferenceLocation } from "../hooks/useReferenceLocation";
+import {
+  formatMiles1dp,
+  haversineMeters,
+  metersToMiles,
+  type LatLng,
+} from "../utils/distance";
 
-type ExplorePoi = {
-  id: string;
-  name: string;
-  description: string;
-  location: google.maps.LatLngLiteral;
-  tags: string[];
+type SectionConfig = {
+  key: string;
+  title: string;
+  ariaLabel: string;
+  items: ExploreItem[];
 };
 
-const POIS: ExplorePoi[] = [
-  {
-    id: "evans-2f",
-    name: "Evans Library 2F",
-    description: "Silent stacks and individual carrels for heads-down work.",
-    location: { lat: 30.616415, lng: -96.338295 },
-    tags: ["Quiet", "Outlets", "Open late"],
-  },
-  {
-    id: "zach-atrium",
-    name: "ZACH Atrium",
-    description: "Bright, open seating with collaborative tables.",
-    location: { lat: 30.619123, lng: -96.340807 },
-    tags: ["Group study", "Sunlight"],
-  },
-  {
-    id: "sbisa",
-    name: "Sbisa Dining",
-    description: "Dining hall on the northside with quick bites and coffee.",
-    location: { lat: 30.61862, lng: -96.34391 },
-    tags: ["Dining", "Grab & go"],
-  },
-];
+function getDistanceLabel(reference: LatLng | undefined, coord: LatLng | undefined): string | null {
+  if (!reference || !coord) {
+    return null;
+  }
+  const meters = haversineMeters(reference, coord);
+  const miles = metersToMiles(meters);
+  return formatMiles1dp(miles);
+}
 
-function ExploreView() {
-  const { status, userCoords } = useLocationContext();
-  const { ready, error, google } = useGoogleMapsClient();
-  const [anchor, setAnchor] = useState<google.maps.LatLngLiteral | null>(null);
-  const [loadingAnchor, setLoadingAnchor] = useState(true);
-  const [anchorError, setAnchorError] = useState<string | null>(null);
-  const [showFallbackAlert, setShowFallbackAlert] = useState(true);
-  const [distanceMap, setDistanceMap] = useState<Record<string, string>>({});
+function matchesQuery(item: ExploreItem, query: string): boolean {
+  if (!query) return true;
+  const normalized = query.toLowerCase();
+  if (item.name.toLowerCase().includes(normalized)) {
+    return true;
+  }
+  return item.tags.some((tag) => tag.toLowerCase().includes(normalized));
+}
+
+function ExploreContent() {
+  const { status, reference, error } = useReferenceLocation();
+  const [searchValue, setSearchValue] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   useEffect(() => {
-    if (!ready || !google) {
-      return;
-    }
-
-    let cancelled = false;
-    setLoadingAnchor(true);
-    setAnchorError(null);
-
-    getSouthsideCommonsAnchor(google)
-      .then((result) => {
-        if (cancelled) return;
-        setAnchor(result ?? SOUTHSIDE_COMMONS_FALLBACK);
-        setLoadingAnchor(false);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setAnchor(SOUTHSIDE_COMMONS_FALLBACK);
-        setLoadingAnchor(false);
-        setAnchorError("Unable to load campus anchor. Using default coordinates.");
-      });
+    const handle = window.setTimeout(() => {
+      setDebouncedQuery(searchValue.trim().toLowerCase());
+    }, 200);
 
     return () => {
-      cancelled = true;
+      window.clearTimeout(handle);
     };
-  }, [ready, google]);
+  }, [searchValue]);
 
-  useEffect(() => {
-    if (!ready || !google || !anchor) {
-      return;
-    }
+  const sections = useMemo<SectionConfig[]>(() => {
+    const filterItems = (items: ExploreItem[]) =>
+      items.filter((item) => matchesQuery(item, debouncedQuery));
 
-    const compute = () => {
-      const origin = userCoords
-        ? new google.maps.LatLng(userCoords.latitude, userCoords.longitude)
-        : new google.maps.LatLng(anchor.lat, anchor.lng);
-
-      const updated: Record<string, string> = {};
-      POIS.forEach((poi) => {
-        const destination = new google.maps.LatLng(poi.location.lat, poi.location.lng);
-        const meters = google.maps.geometry?.spherical?.computeDistanceBetween(origin, destination);
-        if (typeof meters === "number") {
-          updated[poi.id] = formatMiles(meters);
-        } else {
-          updated[poi.id] = "—";
-        }
-      });
-
-      setDistanceMap(updated);
-    };
-
-    compute();
-  }, [ready, google, anchor, userCoords]);
-
-  const alertVisible = useMemo(() => status !== "granted" && showFallbackAlert, [status, showFallbackAlert]);
+    return [
+      {
+        key: "study",
+        title: "Study Spots",
+        ariaLabel: "Study Spots carousel",
+        items: filterItems(STUDY_SPOTS),
+      },
+      {
+        key: "dining",
+        title: "Dining Halls",
+        ariaLabel: "Dining Halls carousel",
+        items: filterItems(DINING_HALLS),
+      },
+      {
+        key: "libraries",
+        title: "Libraries",
+        ariaLabel: "Libraries carousel",
+        items: filterItems(LIBRARIES),
+      },
+      {
+        key: "rec",
+        title: "Rec",
+        ariaLabel: "Rec carousel",
+        items: filterItems(REC),
+      },
+    ];
+  }, [debouncedQuery]);
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Stack spacing={2}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Explore campus highlights
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Distances update automatically once your precise location is available.
-        </Typography>
-        <Collapse in={alertVisible} unmountOnExit>
-          <Alert
-            severity="info"
-            variant="outlined"
-            action={
-              <IconButton
-                aria-label="Dismiss"
-                size="small"
-                onClick={() => setShowFallbackAlert(false)}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-            sx={{ borderRadius: 3 }}
+    <Shell activePath="/explore">
+      <Box
+        sx={{
+          maxWidth: (theme) => theme.breakpoints.values.xl,
+          mx: "auto",
+          width: "100%",
+          px: { xs: 2, md: 3 },
+          py: 2,
+        }}
+      >
+        <Stack spacing={4}>
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            alignItems={{ xs: "flex-start", md: "center" }}
+            justifyContent="space-between"
+            spacing={{ xs: 2, md: 3 }}
           >
-            Using Southside Commons for distance until location is enabled.
-          </Alert>
-        </Collapse>
-        {error && (
-          <Alert severity="error" sx={{ borderRadius: 3 }}>
-            {error} Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your environment to enable distance
-            calculations.
-          </Alert>
-        )}
-        {anchorError && (
-          <Alert severity="warning" sx={{ borderRadius: 3 }}>
-            {anchorError}
-          </Alert>
-        )}
-      </Stack>
-
-      <Box sx={{ mt: 4 }}>
-        {((!ready && !error) || loadingAnchor) && (
-          <Stack spacing={2}>
-            <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 3 }} />
-            <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 3 }} />
-            <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 3 }} />
+            <Stack spacing={1}>
+              <Typography variant="h4" component="h1" color="text.primary" sx={{ fontWeight: 700 }}>
+                Explore
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Find what’s near you on campus.
+              </Typography>
+            </Stack>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.5}
+              alignItems={{ xs: "flex-start", sm: "center" }}
+              sx={{ width: { xs: "100%", sm: "auto" } }}
+            >
+              <Box>
+                {status === "pending" ? (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <CircularProgress size={16} />
+                    <Typography variant="body2" color="text.secondary">
+                      Locating… (8s max)
+                    </Typography>
+                  </Stack>
+                ) : (
+                  <Chip
+                    label={
+                      status === "granted" ? "Using your location" : "Using Southside Commons"
+                    }
+                    variant="outlined"
+                    color={status === "granted" ? "primary" : "default"}
+                    sx={{ fontWeight: 600 }}
+                  />
+                )}
+              </Box>
+              <TextField
+                size="small"
+                label="Search"
+                placeholder="Search places..."
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                sx={{ minWidth: { xs: "100%", sm: 220 } }}
+                inputProps={{ "aria-label": "Search places" }}
+              />
+            </Stack>
           </Stack>
-        )}
 
-        {ready && !loadingAnchor && !error && (
-          <Grid container spacing={3} sx={{ mt: 0 }}>
-            {POIS.map((poi) => (
-              <Grid item xs={12} md={4} key={poi.id}>
-                <Card
-                  elevation={0}
+          {error && status === "fallback" && (
+            <Alert severity="warning" sx={{ borderRadius: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          {sections.map((section, index) => (
+            <Box key={section.key}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mb: 2 }}
+              >
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  <Box
+                    sx={{
+                      width: 4,
+                      height: 24,
+                      borderRadius: 9999,
+                      bgcolor: "primary.main",
+                    }}
+                  />
+                  <Typography
+                    variant="h6"
+                    component="h2"
+                    color="text.primary"
+                    sx={{ fontWeight: 600 }}
+                  >
+                    {section.title}
+                  </Typography>
+                </Stack>
+                <Button variant="text" size="small" color="primary">
+                  View all
+                </Button>
+              </Stack>
+
+              <Box sx={{ position: "relative" }}>
+                <Box
+                  role="list"
+                  aria-label={section.ariaLabel}
                   sx={{
-                    borderRadius: 3,
-                    border: (theme) => `1px solid ${theme.palette.divider}`,
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
+                    display: "grid",
+                    gridAutoFlow: "column",
+                    gridAutoColumns: {
+                      xs: "80%",
+                      sm: "45%",
+                      md: "33%",
+                      lg: "25%",
+                    },
+                    columnGap: 2,
+                    overflowX: "auto",
+                    scrollSnapType: "x mandatory",
+                    WebkitOverflowScrolling: "touch",
+                    pb: 1,
+                    pr: 0.5,
                   }}
                 >
-                  <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                      <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                        {poi.name}
-                      </Typography>
-                      {distanceMap[poi.id] ? (
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {distanceMap[poi.id]}
-                        </Typography>
-                      ) : (
-                        <CircularProgress size={16} thickness={5} />
-                      )}
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary">
-                      {poi.description}
-                    </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                      {poi.tags.map((tag) => (
-                        <Chip key={tag} label={tag} size="small" />
-                      ))}
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
+                  {section.items.map((item) => {
+                    const distanceLabel = getDistanceLabel(reference, item.coord);
+                    const ariaDistance = distanceLabel ?? "distance unavailable";
+                    return (
+                      <Card
+                        key={item.name}
+                        role="listitem"
+                        sx={{
+                          minWidth: {
+                            xs: "80%",
+                            sm: "45%",
+                            md: "33%",
+                            lg: "25%",
+                          },
+                          scrollSnapAlign: "start",
+                          borderRadius: "16px",
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+                          border: `1px solid ${alpha("#500000", 0.06)}`,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                        }}
+                        aria-label={`${item.name}, ${ariaDistance}`}
+                      >
+                        <CardContent sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Typography
+                              variant="h6"
+                              component="p"
+                              noWrap
+                              sx={{ fontWeight: 700, flexGrow: 1 }}
+                            >
+                              {item.name}
+                            </Typography>
+                            {distanceLabel && (
+                              <Chip
+                                aria-label="Distance from your location"
+                                label={distanceLabel}
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                sx={{ fontWeight: 600 }}
+                              />
+                            )}
+                          </Stack>
+
+                          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                            {item.tags.map((tag) => (
+                              <Chip key={tag} label={tag} size="small" variant="outlined" />
+                            ))}
+                          </Stack>
+
+                          <Button variant="contained" size="small" color="primary">
+                            Details
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </Box>
+
+                <Box
+                  sx={{
+                    pointerEvents: "none",
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    width: 40,
+                    background: (theme) =>
+                      `linear-gradient(90deg, ${theme.palette.background.default} 0%, ${alpha(
+                        theme.palette.background.default,
+                        0,
+                      )} 100%)`,
+                  }}
+                />
+                <Box
+                  sx={{
+                    pointerEvents: "none",
+                    position: "absolute",
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    width: 40,
+                    background: (theme) =>
+                      `linear-gradient(270deg, ${theme.palette.background.default} 0%, ${alpha(
+                        theme.palette.background.default,
+                        0,
+                      )} 100%)`,
+                  }}
+                />
+              </Box>
+
+              {index < sections.length - 1 && (
+                <Divider sx={{ my: 3, borderColor: (theme) => alpha(theme.palette.primary.main, 0.08) }} />
+              )}
+            </Box>
+          ))}
+        </Stack>
       </Box>
-    </Box>
+    </Shell>
   );
 }
 
 export default function ExplorePage() {
-  return (
-    <LocationProvider>
-      <ExploreView />
-    </LocationProvider>
-  );
+  return <ExploreContent />;
 }
