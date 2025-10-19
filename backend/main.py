@@ -325,10 +325,14 @@ class TAMUFacilityTracker:
 
         return result
 
-    def ask_perplexity(self, prompt: str):
-        
+    def ask_perplexity(self, prompt: str) -> str:
+        """
+        Query the Perplexity assistant using live TAMU data and return a concise string response.
+        """
+        # Make sure self.data is loaded
+        if not hasattr(self, "data") or not self.data:
+            return "Data is not loaded yet."
 
-        # Define the system prompt right here
         system_prompt = """
         You are a concise TAMU campus assistant.
 
@@ -342,22 +346,28 @@ class TAMUFacilityTracker:
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"""
-            User Query: {prompt}
-            Here is the live TAMU data:
-            {self.data}
+    User Query: {prompt}
+    Here is the live TAMU data:
+    {self.data}
 
-        Unless the user specifies an amount or preference, return only the top 3 results in a short, plain list with name, % full, and available seats and an assuring message before.
-        """}
-            ]
+    Unless the user specifies an amount or preference, return only the top 3 results in a short, plain list with name, % full, and available seats and an assuring message before.
+    """}
+        ]
 
-        client = Perplexity()
+        try:
+            client = Perplexity()
+            response = client.chat.completions.create(
+                model="sonar",
+                messages=messages
+            )
 
-        response = client.chat.completions.create(
-            model="sonar",
-            messages=messages
-        )
+            # Extract the assistant's message
+            return response.choices[0].message.content.strip()
 
-        print(response.choices[0].message.content)
+        except Exception as e:
+            # Return an error string instead of printing
+            return f"Error querying Perplexity: {e}"
+
 
 
 app = FastAPI(title="TAMU Perplexity Campus API")
@@ -372,23 +382,9 @@ class QueryRequest(BaseModel):
 
 @app.post("/ask")
 def ask_perplexity(request: QueryRequest):
-    """Send a query to the Perplexity assistant and return the answer."""
-    
-    # We'll capture the output as a string
-    import io
-    import sys
-
-    buffer = io.StringIO()
-    sys_stdout = sys.stdout
-    sys.stdout = buffer  # redirect prints to buffer
-
-    try:
-        tracker.ask_perplexity(request.query)
-    finally:
-        sys.stdout = sys_stdout  # restore stdout
-
-    result = buffer.getvalue().strip()
+    result = tracker.ask_perplexity(request.query)
     return {"response": result}
+
 
 @app.get("/retrieve")
 def retrieve_locations():
