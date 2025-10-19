@@ -325,39 +325,136 @@ class TAMUFacilityTracker:
 
         return result
 
-    def ask_perplexity(self, prompt: str):
-        # Define the system prompt
+    def ask_perplexity(self, prompt: str) -> str:
+
+        # System prompt: strict instructions to return valid JSON (string) only.
         system_prompt = """
         You are a TAMU campus assistant that returns structured data only.
 
-        - You have live data on library occupancies (percentfull), recreation facilities, and events.
-        - Only return exactly what the user asked for. Do not add extra explanations or alternatives.
-        - Unless the user specifies an amount or preference, return only a list of the 3 locations with their current % full and available seats based on most available spots.
-        - Output must be a valid Python list of dictionaries.
-        - Each dictionary must contain: "name", "percent_full", and "available_seats".
-        - Do not include any extra strings, messages, or formatting outside the list.
-        - Do not hallucinate; rely only on provided data.
+        - Use ONLY the provided data embedded in the user message. Do NOT invent or call external data sources.
+        - Output MUST be valid JSON text (a JSON array) and nothing else. Do NOT include any markdown, backticks, or explanatory text.
+        - The JSON must be an array with up to 3 objects (default 3 if not specified).
+        - Each object must contain exactly these keys:
+          - "name" (string)
+          - "percent_full" (number, e.g. 42.3)
+          - "available_seats" (integer)
+        - Prefer locations with the most available seats unless the user explicitly requests otherwise.
+        - Do not include null, NaN, or non-JSON types. Use 0 for unknown available_seats if necessary.
+        - Example output (exact format, no comments):
+          [{"name":"Library A","percent_full":12.5,"available_seats":120}, {"name":"Rec B","percent_full":45.0,"available_seats":60}]
         """
-        
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"""
-            User Query: {prompt}
-            Here is the live TAMU data:
-            {self.data}
 
-            Return only the top 3 results as a valid Python list of dictionaries with keys: "name", "percent_full", and "available_seats". No extra text.
-            """}
-        ]
+        # Embed sanitized live data for the model to use
+        try:
+            embedded_data = json.dumps(self.data, default=str)
+        except Exception:
+            embedded_data = str(self.data)
+
+        user_message = {
+            "role": "user",
+            "content": f"""
+    User Query: {prompt}
+
+    Here is the live TAMU data (use only this data): 
+    {embedded_data}
+
+    Return up to the top 3 results as a single JSON array (string) containing objects with keys:
+    "name" (string), "percent_full" (number), and "available_seats" (integer).
+    Return only the JSON array and nothing else.
+    """
+        }
+
+        messages = [{"role": "system", "content": system_prompt}, user_message]
 
         client = Perplexity()
+        try:
+            response = client.chat.completions.create(model="sonar", messages=messages)
+            resp_text = response.choices[0].message.content.strip()
+        except Exception:
+            resp_text = ""
 
-        response = client.chat.completions.create(
-            model="sonar",
-            messages=messages
-        )
+        # Try to parse the model output as JSON. If it fails, attempt to extract a JSON array substring.
+        def try_parse_json(s: str):
+            try:
+                return json.loads(s)
+            except Exception:
+                # Attempt to extract substring between first '[' and last ']'
+                m = re.search(r"\[.*\]", s, re.S)
+                if m:
+                    try:
+                        return json.loads(m.group(0))
+                    except Exception:
+                        return None
+                return None
 
-        return response.choices[0].message.content
+        parsed = try_parse_json(resp_text)
+        if parsed is not None and isinstance(parsed, list):
+            # Normalize and ensure types are correct
+            normalized = []
+            for item in parsed[:3]:
+                try:
+                    name = str(item.get("name", "")) if isinstance(item, dict) else ""
+                    percent = float(item.get("percent_full", 0)) if isinstance(item, dict) else 0.0
+                    available = int(item.get("available_seats", 0)) if isinstance(item, dict) else 0
+                except Exception:
+                    name, percent, available = "", 0.0, 0
+                normalized.append({"name": name, "percent_full": percent, "available_seats": available})
+            return json.dumps(normalized)
+        else:
+            # Fallback: build a deterministic top-3 list from local data (guaranteed JSON string)
+            candidates = []
+
+            # Rec facilities
+            for f in self.fetch_rec_data():
+                try:
+                    name = f.get("LocationName", "Unknown")
+                    current = int(f.get("LastCount", 0))
+                    cap = int(f.get("TotalCapacity", 1)) or 1
+                    available = max(cap - current, 0)
+                    percent = round((current / cap) * 100, 1)
+                    candidates.append({"name": name, "percent_full": percent, "available_seats": available})
+                except Exception:
+                    continue
+
+            # Libraries
+            for lib in self.fetch_library_data():
+                try:
+                    name = lib.get("name", "Unknown")
+                    max_cap = int(lib.get("max", 1)) or 1
+                    remaining = int(lib.get("remaining", 0))
+                    current = max_cap - remaining
+                    available = max(remaining, 0)
+                    percent = round((current / max_cap) * 100, 1)
+                    candidates.append({"name": name, "percent_full": percent, "available_seats": available})
+                except Exception:
+                    continue
+
+            # Events (no reliable capacity) - skip or include with 0 available seats
+            for ev in self.fetch_event_data(limit=20):
+                try:
+                    name = ev.get("location", "Event Location")
+                    # We don't have capacity; set available_seats to 0 and percent_full to provided percent if any (else random-ish not allowed)
+                    candidates.append({"name": name, "percent_full": float(ev.get("percent_full", 100.0)) if isinstance(ev, dict) and "percent_full" in ev else 100.0, "available_seats": 0})
+                except Exception:
+                    continue
+
+            # Sort by available_seats descending (most available spots first), then by percent_full ascending
+            candidates.sort(key=lambda x: (-int(x.get("available_seats", 0)), float(x.get("percent_full", 100.0))))
+            top3 = candidates[:3]
+
+            # Ensure correct types and return JSON string
+            safe_top3 = []
+            for it in top3:
+                try:
+                    safe_top3.append({
+                        "name": str(it.get("name", "")),
+                        "percent_full": float(it.get("percent_full", 0.0)),
+                        "available_seats": int(it.get("available_seats", 0))
+                    })
+                except Exception:
+                    safe_top3.append({"name": "", "percent_full": 0.0, "available_seats": 0})
+
+            return json.dumps(safe_top3)
 
 
 
@@ -415,6 +512,8 @@ def create_event(event: EventRequest):
     return {"message": "Google Calendar link opened on the server!", "link": link}
 
 import pytz
+import json
+import re
 
 @app.get("/get-event-requests", response_model=List[EventRequest])
 def get_event_requests():
