@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Map", href: "/map" },
   { label: "Explore", href: "/explore" },
+  { label: "Crowd Ping", href: "/crowdping" },
   { label: "Events", href: "/events" },
 ];
 

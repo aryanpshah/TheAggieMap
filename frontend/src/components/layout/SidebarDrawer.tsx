@@ -17,6 +17,7 @@ const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Map", href: "/map" },
   { label: "Explore", href: "/explore" },
+  { label: "Crowd Ping", href: "/crowdping" },
   { label: "Events", href: "/events" },
   { label: "Dining Halls", href: "/map?type=dining" },
   { label: "Study Spots", href: "/map?type=study" },

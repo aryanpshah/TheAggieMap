@@ -1,6 +1,6 @@
-const CT_TIME_ZONE = "America/Chicago";
+export const CT_TIME_ZONE = "America/Chicago";
 
-type DateInput = string | Date;
+export type DateInput = string | Date;
 
 type TimeParts = {
   year: number;
@@ -48,29 +48,13 @@ function pad(value: number): string {
   return value.toString().padStart(2, "0");
 }
 
-function formatCompact(parts: TimeParts, offsetMinutes: number): string {
-  const sign = offsetMinutes >= 0 ? "+" : "-";
-  const absolute = Math.abs(offsetMinutes);
-  const offsetHours = Math.floor(absolute / 60);
-  const offsetRemainingMinutes = absolute % 60;
-
-  return [
-    parts.year.toString().padStart(4, "0"),
-    pad(parts.month),
-    pad(parts.day),
-    "T",
-    pad(parts.hour),
-    pad(parts.minute),
-    pad(parts.second),
-    sign,
-    pad(offsetHours),
-    pad(offsetRemainingMinutes),
-  ].join("");
+function buildDatePortion(parts: TimeParts): string {
+  return `${parts.year.toString().padStart(4, "0")}-${pad(parts.month)}-${pad(parts.day)}T${pad(
+    parts.hour,
+  )}:${pad(parts.minute)}:${pad(parts.second)}`;
 }
 
-export function toCompactOffset(input: DateInput): string {
-  const date = ensureDate(input);
-  const parts = extractParts(date);
+function computeOffsetMinutes(date: Date, parts: TimeParts): number {
   const utcEquivalent = Date.UTC(
     parts.year,
     parts.month - 1,
@@ -79,8 +63,34 @@ export function toCompactOffset(input: DateInput): string {
     parts.minute,
     parts.second,
   );
-  const offsetMinutes = Math.round((utcEquivalent - date.getTime()) / 60000);
-  return formatCompact(parts, offsetMinutes);
+  return Math.round((utcEquivalent - date.getTime()) / 60000);
+}
+
+function formatOffset(offsetMinutes: number, separator: ":" | "" = ""): string {
+  const sign = offsetMinutes >= 0 ? "+" : "-";
+  const absolute = Math.abs(offsetMinutes);
+  const hours = Math.floor(absolute / 60);
+  const minutes = absolute % 60;
+  if (separator) {
+    return `${sign}${pad(hours)}${separator}${pad(minutes)}`;
+  }
+  return `${sign}${pad(hours)}${pad(minutes)}`;
+}
+
+export function toCTIsoString(input: DateInput): string {
+  const date = ensureDate(input);
+  const parts = extractParts(date);
+  const offsetMinutes = computeOffsetMinutes(date, parts);
+  return `${buildDatePortion(parts)}${formatOffset(offsetMinutes, ":")}`;
+}
+
+export function toCompactOffset(input: DateInput): string {
+  const date = ensureDate(input);
+  const parts = extractParts(date);
+  const offsetMinutes = computeOffsetMinutes(date, parts);
+  return `${parts.year.toString().padStart(4, "0")}${pad(parts.month)}${pad(parts.day)}T${pad(
+    parts.hour,
+  )}${pad(parts.minute)}${pad(parts.second)}${formatOffset(offsetMinutes)}`;
 }
 
 function formatZulu(date: Date): string {
@@ -136,5 +146,3 @@ export function formatRangeCT(startISO: string, endISO: string): string {
 
   return `${startDateText} ${startTimeText} – ${endDateText} ${endTimeText} CT`;
 }
-
-export { CT_TIME_ZONE };
