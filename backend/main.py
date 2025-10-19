@@ -325,49 +325,38 @@ class TAMUFacilityTracker:
 
         return result
 
-    def ask_perplexity(self, prompt: str) -> str:
-        """
-        Query the Perplexity assistant using live TAMU data and return a concise string response.
-        """
-        # Make sure self.data is loaded
-        if not hasattr(self, "data") or not self.data:
-            return "Data is not loaded yet."
-
+	def ask_perplexity(self, prompt: str):
+        	# Define the system prompt
         system_prompt = """
-        You are a concise TAMU campus assistant.
+        You are a TAMU campus assistant that returns structured data only.
 
         - You have live data on library occupancies (percentfull), recreation facilities, and events.
         - Only return exactly what the user asked for. Do not add extra explanations or alternatives.
         - Unless the user specifies an amount or preference, return only a list of the 3 locations with their current % full and available seats based on most available spots.
-        - Output in simple readable format.
+        - Output must be a valid Python list of dictionaries.
+        - Each dictionary must contain: "name", "percent_full", and "available_seats".
+        - Do not include any extra strings, messages, or formatting outside the list.
         - Do not hallucinate; rely only on provided data.
         """
+	        messages = [
+	            {"role": "system", "content": system_prompt},
+        	    {"role": "user", "content": f"""
+            User Query: {prompt}
+            Here is the live TAMU data:
+            {self.data}
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"""
-    User Query: {prompt}
-    Here is the live TAMU data:
-    {self.data}
-
-    Unless the user specifies an amount or preference, return only the top 3 results in a short, plain list with name, % full, and available seats and an assuring message before.
-    """}
+            Return only the top 3 results as a valid Python list of dictionaries with keys: "name", "percent_full", and "available_seats". No extra text.
+            """}
         ]
 
-        try:
-            client = Perplexity()
-            response = client.chat.completions.create(
-                model="sonar",
-                messages=messages
-            )
+        client = Perplexity()
 
-            # Extract the assistant's message
-            return response.choices[0].message.content.strip()
+        response = client.chat.completions.create(
+            model="sonar",
+            messages=messages
+        )
 
-        except Exception as e:
-            # Return an error string instead of printing
-            return f"Error querying Perplexity: {e}"
-
+        return response.choices[0].message.content
 
 
 # Load tracker and data once at startup
