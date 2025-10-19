@@ -411,7 +411,7 @@ def generate_google_calendar_link(event: dict) -> str:
     )
 
     link = base_url + params
-    webbrowser.open(link)  # Opens the link automatically on the server
+    #webbrowser.open(link)  # Opens the link automatically on the server
     return link
 
 @app.post("/create-event")

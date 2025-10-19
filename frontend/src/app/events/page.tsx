@@ -18,7 +18,7 @@ import Shell from "../layout/Shell";
 import EventCalendar, { type CalendarViewType } from "../../components/events/EventCalendar";
 import EventDrawer from "../../components/events/EventDrawer";
 import { EVENTS_SEED, type CampusEvent } from "../../data/eventsSeed";
-import { buildGoogleCalendarCreateUrl } from "../../utils/calendarLinks";
+import { createCalendarEvent } from "../../lib/api";
 import { toCompactOffset } from "../../utils/datetime";
 
 type ViewOption = "month" | "week" | "list";
@@ -27,6 +27,20 @@ const VIEW_TO_CALENDAR: Record<ViewOption, CalendarViewType> = {
   month: "dayGridMonth",
   week: "timeGridWeek",
   list: "listWeek",
+};
+
+const toGCalUTC = (date: Date): string => {
+  const pad = (value: number) => value.toString().padStart(2, "0");
+  return (
+    date.getUTCFullYear().toString().padStart(4, "0") +
+    pad(date.getUTCMonth() + 1) +
+    pad(date.getUTCDate()) +
+    "T" +
+    pad(date.getUTCHours()) +
+    pad(date.getUTCMinutes()) +
+    pad(date.getUTCSeconds()) +
+    "Z"
+  );
 };
 
 export default function EventsPage() {
@@ -59,15 +73,26 @@ export default function EventsPage() {
     setDrawerOpen(true);
   };
 
-  const handleAddToGoogle = (event: CampusEvent) => {
-    const url = buildGoogleCalendarCreateUrl({
-      title: event.title,
-      startISO: event.start,
-      endISO: event.end,
-      details: event.details,
-      location: event.location,
-    });
-    window.open(url, "_blank", "noopener,noreferrer");
+  const handleAddToGoogle = async (event: CampusEvent) => {
+    const start = toGCalUTC(new Date(event.start));
+    const end = toGCalUTC(new Date(event.end));
+    try {
+      const link = await createCalendarEvent({
+        text: event.title,
+        start,
+        end,
+        details: event.details,
+        location: event.location,
+      });
+      window.open(link, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Failed to open calendar", error);
+      setSnackbar({
+        open: true,
+        message: "Could not open Google Calendar. Please try again.",
+        severity: "error",
+      });
+    }
   };
 
   const handleSaveToBackend = async (event: CampusEvent) => {

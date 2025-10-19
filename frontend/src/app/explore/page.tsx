@@ -19,6 +19,7 @@ import {
   LIBRARIES,
   REC,
   STUDY_SPOTS,
+  SOUTHSIDE_COMMONS_COORD,
   type ExploreItem,
 } from "../../data/exploreSeed";
 import { useReferenceLocation } from "../../hooks/useReferenceLocation";
@@ -101,6 +102,8 @@ function ExploreContent() {
     ];
   }, [debouncedQuery]);
 
+  const effectiveReference = status === "fallback" ? SOUTHSIDE_COMMONS_COORD : reference;
+
   return (
     <Shell activePath="/explore">
       <Box
@@ -130,7 +133,7 @@ function ExploreContent() {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1.5}
-              alignItems={{ xs: "flex-start", sm: "center" }}
+              alignItems="center"
               sx={{ width: { xs: "100%", sm: "auto" } }}
             >
               <Box>
@@ -143,9 +146,7 @@ function ExploreContent() {
                   </Stack>
                 ) : (
                   <Chip
-                    label={
-                      status === "granted" ? "Using your location" : "Using Southside Commons"
-                    }
+                    label={status === "granted" ? "Using your location" : "Using Southside Commons"}
                     variant="outlined"
                     color={status === "granted" ? "primary" : "default"}
                     sx={{ fontWeight: 600 }}
@@ -154,11 +155,16 @@ function ExploreContent() {
               </Box>
               <TextField
                 size="small"
-                label="Search"
                 placeholder="Search places..."
+                variant="outlined"
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
-                sx={{ minWidth: { xs: "100%", sm: 220 } }}
+                sx={{
+                  minWidth: { xs: "100%", sm: 260 },
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 3,
+                  },
+                }}
                 inputProps={{ "aria-label": "Search places" }}
               />
             </Stack>
@@ -223,7 +229,7 @@ function ExploreContent() {
                   }}
                 >
                   {section.items.map((item) => {
-                    const distanceLabel = getDistanceLabel(reference, item.coord);
+                    const distanceLabel = getDistanceLabel(effectiveReference, item.coord);
                     const ariaDistance = distanceLabel ?? "distance unavailable";
                     return (
                       <Card
@@ -283,21 +289,6 @@ function ExploreContent() {
                   })}
                 </Box>
 
-                <Box
-                  sx={{
-                    pointerEvents: "none",
-                    position: "absolute",
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    width: 40,
-                    background: (theme) =>
-                      `linear-gradient(90deg, ${theme.palette.background.default} 0%, ${alpha(
-                        theme.palette.background.default,
-                        0,
-                      )} 100%)`,
-                  }}
-                />
                 <Box
                   sx={{
                     pointerEvents: "none",

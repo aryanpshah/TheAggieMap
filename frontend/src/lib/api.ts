@@ -132,3 +132,32 @@ export async function askPerplexity(query: string): Promise<string> {
     throw error;
   }
 }
+
+type CreateEventPayload = {
+  text: string;
+  start: string;   // e.g., "20251018T190000Z"
+  end: string;     // e.g., "20251018T200000Z"
+  details?: string;
+  location?: string;
+};
+
+type CreateEventResponse = {
+  link: string;
+};
+
+export async function createCalendarEvent(payload: CreateEventPayload): Promise<string> {
+  const res = await fetch(`${BASE_API_URL}/create-event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to create calendar link (${res.status})`);
+  }
+
+  const data = (await res.json()) as CreateEventResponse;
+  return data.link;
+}
+
+
