@@ -370,8 +370,6 @@ class TAMUFacilityTracker:
 
 
 
-app = FastAPI(title="TAMU Perplexity Campus API")
-
 # Load tracker and data once at startup
 tracker = TAMUFacilityTracker()
 tracker.load_all_data()
