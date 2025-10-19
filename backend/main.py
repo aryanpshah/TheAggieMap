@@ -17,7 +17,7 @@ app = FastAPI(title="The Aggie Map API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000", "http://0.0.0.0:8000", "http://0.0.0.0:3000", "142.93.69.165:3000", "142.93.69.165:8000"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
