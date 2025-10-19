@@ -37,7 +37,7 @@ export const FOR_YOU_POOL: ForYouItem[] = [
     weight: 1.0,
   },
   {
-    id: "southside",
+    id: "southside-commons",
     name: "Southside Commons",
     category: "Dining",
     tags: ["Food Hall", "Southside"],
@@ -55,7 +55,7 @@ export const FOR_YOU_POOL: ForYouItem[] = [
     weight: 0.9,
   },
   {
-    id: "msc",
+    id: "msc-lounge",
     name: "MSC Lounge",
     category: "Other",
     tags: ["Central", "Meetups"],
@@ -64,7 +64,7 @@ export const FOR_YOU_POOL: ForYouItem[] = [
     weight: 1.0,
   },
   {
-    id: "wcl",
+    id: "west-campus-library",
     name: "West Campus Library",
     category: "Library",
     tags: ["Business", "Quiet"],
@@ -73,7 +73,7 @@ export const FOR_YOU_POOL: ForYouItem[] = [
     weight: 1.0,
   },
   {
-    id: "peap",
+    id: "peap-building",
     name: "PEAP Building",
     category: "Rec",
     tags: ["Classes", "Fitness"],
@@ -82,7 +82,7 @@ export const FOR_YOU_POOL: ForYouItem[] = [
     weight: 0.8,
   },
   {
-    id: "msc-career",
+    id: "msc-career-booths",
     name: "Career Booths at MSC",
     category: "Event",
     tags: ["Networking", "Internships"],

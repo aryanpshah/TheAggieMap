@@ -13,6 +13,9 @@ import { alpha } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { FmdGoodOutlined } from "@mui/icons-material";
 
+/* added imports */
+import { useRef, useLayoutEffect } from "react";
+
 declare module "@mui/material/styles" {
   interface TypeBackground {
     cream?: string;
@@ -51,6 +54,10 @@ export default function LocationTile({
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const [displaySeats, setDisplaySeats] = useState(0);
 
+  /* new autofit state & ref */
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  const [titleFontSize, setTitleFontSize] = useState<number>(21);
+
   useEffect(() => {
     if (prefersReducedMotion) {
       setDisplaySeats(seatsFree);
@@ -75,6 +82,35 @@ export default function LocationTile({
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
   }, [prefersReducedMotion, seatsFree]);
+
+  useLayoutEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+
+    const MIN = 12;
+    const MAX = 21;
+
+    const fit = () => {
+      // start at MAX, then reduce until it fits or reaches MIN
+      let fs = MAX;
+      el.style.fontSize = `${fs}px`;
+      // loop to reduce until fits
+      while (fs > MIN && el.scrollWidth > el.clientWidth) {
+        fs -= 1;
+        el.style.fontSize = `${fs}px`;
+      }
+      setTitleFontSize(fs);
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [code]); // re-run when title text (code) changes
 
   const dotColor = DOT_COLORS[noiseLabel] ?? DOT_COLORS.Quiet;
   const progress = clamp(noisePct);
@@ -110,9 +146,9 @@ export default function LocationTile({
         "&:hover": prefersReducedMotion
           ? undefined
           : {
-              transform: "translateY(-2px)",
-              boxShadow: "0 14px 36px rgba(0,0,0,0.10)",
-            },
+            transform: "translateY(-2px)",
+            boxShadow: "0 14px 36px rgba(0,0,0,0.10)",
+          },
         "&:focus-within": {
           boxShadow: "0 0 0 3px rgba(80,0,0,0.15)",
         },
@@ -168,15 +204,17 @@ export default function LocationTile({
         }}
       >
         <Typography
+          ref={titleRef}
           variant="h5"
+          component="h5"
           sx={{
             fontWeight: 700,
-            fontSize: 21,
+            fontSize: `${titleFontSize}px`,
             lineHeight: 1.2,
-            color: "#1E1E1E",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
+            textTransform: "none",
           }}
         >
           {code}

@@ -28,7 +28,7 @@ export default function PrivacyPage() {
               What we collect
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              We store the search queries you type and the crowd pings you submit so we can surface the best study corners and dining tips. Device type and rough location help us show places near you. Sensitive details like exact GPS trails or personal class schedules are not collected.
+              We store the search queries you type and the crowd pings you submit so we can surface the best study corners and dining tips. Device type and rough location help us show places near you. Sensitive details like exact GPS trails are not collected.
             </Typography>
           </Stack>
 
@@ -46,12 +46,12 @@ export default function PrivacyPage() {
               Your choices
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Unhappy with a ping you submitted? Reach out via support@aggiemap.edu and we will scrub it. Clearing your browser cache removes locally stored preferences.
+              Unhappy with a ping you submitted? Reach out via support@theaggiemap.com and we will scrub it. Clearing your browser cache removes locally stored preferences.
             </Typography>
           </Stack>
 
           <Typography variant="body2" color="text.secondary">
-            Questions about privacy? Ping the team at privacy@aggiemap.edu and we will get back before your next study break.
+            Questions about privacy? Ping the team at privacy@theaggiemap.com and we will get back before your next study break.
           </Typography>
         </Stack>
       </Container>

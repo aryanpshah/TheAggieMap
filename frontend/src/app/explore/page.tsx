@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
+import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -16,6 +15,7 @@ import { alpha } from "@mui/material/styles";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import ForYou from "../../components/explore/ForYou";
 import Shell from "../layout/Shell";
+import { DetailLinkButton } from "../../components/DetailLinkButton";
 import {
   DINING_HALLS,
   LIBRARIES,
@@ -150,13 +150,7 @@ function ExploreContent() {
               <Button
                 variant="outlined"
                 color="primary"
-                startIcon={
-                  locationReady ? (
-                    <MyLocationIcon fontSize="small" />
-                  ) : (
-                    <CircularProgress size={16} />
-                  )
-                }
+                startIcon={locationReady ? <MyLocationIcon fontSize="small" /> : undefined}
                 disabled={!locationReady}
                 sx={{
                   height: CONTROL_HEIGHT,
@@ -260,7 +254,7 @@ function ExploreContent() {
                       const ariaDistance = distanceLabel ?? "distance unavailable";
                       return (
                         <Card
-                          key={item.name}
+                          key={item.id}
                           role="listitem"
                           sx={{
                             minWidth: {
@@ -307,9 +301,12 @@ function ExploreContent() {
                               ))}
                             </Stack>
 
-                            <Button variant="contained" size="small" color="primary">
-                              Details
-                            </Button>
+                          <DetailLinkButton
+                            id={item.id}
+                            label="Details"
+                            size="small"
+                            ariaLabel={`Open details for ${item.name}`}
+                          />
                           </CardContent>
                         </Card>
                       );

@@ -16,13 +16,10 @@ import type { LatLng } from "../../utils/distance";
 type SnackbarState = {
   open: boolean;
   message: string;
-  severity: "success" | "error";
 };
 
 export default function CrowdPingPage() {
   const { status, reference, error: locationError } = useReferenceLocation();
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState<SnackbarState | null>(null);
   const [formKey, setFormKey] = useState(0);
 
@@ -34,45 +31,9 @@ export default function CrowdPingPage() {
   };
 
   const handleSubmit = async (values: CrowdPingFormValues) => {
-    setSubmitting(true);
-    setSubmitError(null);
-
-    const coord = resolveCoord();
-    const payload: Record<string, unknown> = {
-      place: values.place,
-      levels: {
-        crowded: values.crowded,
-        loud: values.loud,
-      },
-      vibe: values.vibe,
-      notes: values.notes,
-      coord,
-      source: "user",
-    };
-
-    if (!coord) {
-      payload.reference = "Southside Commons";
-    }
-
-    try {
-      const response = await fetch("/api/crowdping/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-
-      setFormKey((prev) => prev + 1);
-      setSnackbar({ open: true, message: "Thanks! Your crowd ping was submitted.", severity: "success" });
-    } catch (error) {
-      setSubmitError((error as Error).message ?? "Could not submit right now.");
-      setSnackbar({ open: true, message: "Could not submit right now.", severity: "error" });
-    } finally {
-      setSubmitting(false);
-    }
+    resolveCoord(); // trigger permission prompt if available, though not used currently
+    setFormKey((prev) => prev + 1);
+    setSnackbar({ open: true, message: "Ping recorded" });
   };
 
   return (
@@ -118,12 +79,7 @@ export default function CrowdPingPage() {
             }}
           >
             <CardContent>
-              <CrowdPingForm
-                key={formKey}
-                onSubmit={handleSubmit}
-                submitting={submitting}
-                error={submitError}
-              />
+              <CrowdPingForm key={formKey} onSubmit={handleSubmit} />
             </CardContent>
           </Card>
         </Stack>

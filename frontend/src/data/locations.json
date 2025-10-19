@@ -1,0 +1,477 @@
+[
+    {
+        "id":  "evans-quiet",
+        "name":  "Evans Library (4th Floor Quiet)",
+        "category":  "Study",
+        "description":  "Quiet floor with individual carrels, soft seating near the windows, and wall outlets at most desks for long study sessions.",
+        "tags":  [
+                     "Quiet",
+                     "Outlets"
+                 ],
+        "campusArea":  "Central Campus",
+        "address":  "400 Spence St, College Station, TX 77843",
+        "imageUrl":  "/images/locations/evans-4f.jpg",
+        "lat":  30.6195,
+        "lng":  -96.339,
+        "hours":  [
+                      {
+                          "day":  "Mon–Thu",
+                          "open":  "07:00",
+                          "close":  "24:00"
+                      },
+                      {
+                          "day":  "Fri",
+                          "open":  "07:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "10:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "24:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Power outlets at every carrel",
+                          "Quiet zones",
+                          "Printers nearby"
+                      ],
+        "currentBusyScore":  28,
+        "statusText":  "Quiet"
+    },
+    {
+        "id":  "evans-library",
+        "name":  "Evans Library",
+        "category":  "Study",
+        "description":  "The flagship Texas A\u0026M library with collections across six floors, collaboration rooms, and a Starbucks on the first floor.",
+        "tags":  [
+                     "Quiet",
+                     "Stacks"
+                 ],
+        "campusArea":  "Central Campus",
+        "address":  "400 Spence St, College Station, TX 77843",
+        "imageUrl":  "/images/locations/evans-library.jpg",
+        "lat":  30.6188,
+        "lng":  -96.3385,
+        "hours":  [
+                      {
+                          "day":  "Mon–Thu",
+                          "open":  "07:00",
+                          "close":  "24:00"
+                      },
+                      {
+                          "day":  "Fri",
+                          "open":  "07:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "10:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "24:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Business center",
+                          "Group study rooms",
+                          "Starbucks"
+                      ],
+        "currentBusyScore":  45,
+        "statusText":  "Moderate"
+    },
+    {
+        "id":  "zachry-pods",
+        "name":  "Zachry Pods",
+        "category":  "Study",
+        "description":  "Collaborative pods tucked throughout the Zachry second floor with whiteboards, large displays, and plenty of natural light.",
+        "tags":  [
+                     "Collab",
+                     "Whiteboards"
+                 ],
+        "campusArea":  "Engineering Quad",
+        "address":  "125 Spence St, College Station, TX 77843",
+        "lat":  30.6199,
+        "lng":  -96.3382,
+        "hours":  [
+                      {
+                          "close":  "02:00",
+                          "day":  "Sunday",
+                          "open":  "09:00"
+                      },
+                      {
+                          "close":  "02:00",
+                          "day":  "Monday",
+                          "open":  "07:00"
+                      },
+                      {
+                          "close":  "02:00",
+                          "day":  "Tuesday",
+                          "open":  "07:00"
+                      },
+                      {
+                          "close":  "02:00",
+                          "day":  "Wednesday",
+                          "open":  "07:00"
+                      },
+                      {
+                          "close":  "02:00",
+                          "day":  "Thursday",
+                          "open":  "07:00"
+                      },
+                      {
+                          "close":  "00:00",
+                          "day":  "Friday",
+                          "open":  "07:00"
+                      },
+                      {
+                          "close":  "00:00",
+                          "day":  "Saturday",
+                          "open":  "09:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Whiteboards",
+                          "Display monitors",
+                          "Reservable pods"
+                      ],
+        "currentBusyScore":  54,
+        "statusText":  "Moderate"
+    },
+    {
+        "id":  "west-campus-library",
+        "name":  "West Campus Library",
+        "category":  "Study",
+        "description":  "Business and STEM focused library near Wehner with team rooms, quiet zones, and easy access to the Rec Center.",
+        "tags":  [
+                     "Business",
+                     "Quiet"
+                 ],
+        "campusArea":  "West Campus",
+        "address":  "400 Houston St, College Station, TX 77843",
+        "imageUrl":  "/images/locations/west-campus-library.jpg",
+        "lat":  30.6137,
+        "lng":  -96.343,
+        "hours":  [
+                      {
+                          "day":  "Mon–Thu",
+                          "open":  "07:30",
+                          "close":  "24:00"
+                      },
+                      {
+                          "day":  "Fri",
+                          "open":  "07:30",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "10:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "24:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Reservable team rooms",
+                          "Adaptive technology lab",
+                          "Color printing"
+                      ],
+        "currentBusyScore":  42,
+        "statusText":  "Moderate"
+    },
+    {
+        "id":  "west-campus-library-booths",
+        "name":  "West Campus Library Booths",
+        "category":  "Study",
+        "description":  "Soft seating and enclosed booths on the west side of WCL perfect for interview prep or small group meetings.",
+        "tags":  [
+                     "Quiet",
+                     "Late"
+                 ],
+        "campusArea":  "West Campus",
+        "address":  "400 Houston St, College Station, TX 77843",
+        "imageUrl":  "/images/locations/wcl-booths.jpg",
+        "lat":  30.6132,
+        "lng":  -96.3432,
+        "amenities":  [
+                          "Privacy screens",
+                          "USB charging",
+                          "Nearby coffee cart"
+                      ],
+        "currentBusyScore":  38,
+        "statusText":  "Quiet"
+    },
+    {
+        "id":  "sbisa",
+        "name":  "Sbisa Dining Hall",
+        "category":  "Dining",
+        "description":  "All-you-care-to-eat dining on Northside with rotating menus, vegan options, and a late-night grill.",
+        "tags":  [
+                     "Buffet",
+                     "Late"
+                 ],
+        "campusArea":  "Northside",
+        "address":  "233 Houston St, College Station, TX 77843",
+        "imageUrl":  "/images/locations/sbisa.jpg",
+        "lat":  30.6192,
+        "lng":  -96.3405,
+        "hours":  [
+                      {
+                          "day":  "Mon–Thu",
+                          "open":  "07:00",
+                          "close":  "23:00"
+                      },
+                      {
+                          "day":  "Fri",
+                          "open":  "07:00",
+                          "close":  "21:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "09:00",
+                          "close":  "21:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "09:00",
+                          "close":  "23:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Late-night grill",
+                          "Vegan station",
+                          "Meal swipe accepted"
+                      ],
+        "currentBusyScore":  68,
+        "statusText":  "Busy"
+    },
+    {
+        "id":  "southside-commons",
+        "name":  "Southside Commons",
+        "category":  "Dining",
+        "description":  "Food hall with multiple micro-restaurants, coffee, and ample seating for meetups or studying between classes.",
+        "tags":  [
+                     "Food Hall",
+                     "Southside"
+                 ],
+        "campusArea":  "Southside",
+        "address":  "676 Lubbock St, College Station, TX 77843",
+        "imageUrl":  "/images/locations/southside-commons.jpg",
+        "lat":  30.6079,
+        "lng":  -96.3411,
+        "hours":  [
+                      {
+                          "day":  "Mon–Thu",
+                          "open":  "07:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Fri",
+                          "open":  "07:00",
+                          "close":  "20:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "10:00",
+                          "close":  "20:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "22:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Coffee bar",
+                          "Marketplace",
+                          "Plenty of seating"
+                      ],
+        "currentBusyScore":  55,
+        "statusText":  "Moderate"
+    },
+    {
+        "id":  "msc-dining",
+        "name":  "MSC Dining",
+        "category":  "Dining",
+        "description":  "Collection of fast casual favorites inside the MSC including Panda Express, Rev\u0027s, and Aggie Express grab-and-go.",
+        "tags":  [
+                     "Central",
+                     "Variety"
+                 ],
+        "campusArea":  "Central Campus",
+        "address":  "275 Joe Routt Blvd, College Station, TX 77843",
+        "imageUrl":  "/images/locations/msc-dining.jpg",
+        "placeId":  "ChIJx6l0cEBBRoYRrooJ1i8Lpz0",
+        "hours":  [
+                      {
+                          "day":  "Mon–Fri",
+                          "open":  "07:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "08:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "22:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Meal trades",
+                          "Indoor seating",
+                          "Mobile ordering"
+                      ],
+        "currentBusyScore":  61,
+        "statusText":  "Busy"
+    },
+    {
+        "id":  "rec-center",
+        "name":  "Student Recreation Center",
+        "category":  "Rec",
+        "description":  "Main recreation center with weight rooms, indoor track, courts, natatorium, and multiple fitness studios.",
+        "tags":  [
+                     "Weights",
+                     "Courts"
+                 ],
+        "campusArea":  "West Campus",
+        "address":  "797 Olsen Blvd, College Station, TX 77843",
+        "imageUrl":  "/images/locations/rec-center.jpg",
+        "lat":  30.6076,
+        "lng":  -96.3434,
+        "hours":  [
+                      {
+                          "day":  "Mon–Thu",
+                          "open":  "05:30",
+                          "close":  "00:00"
+                      },
+                      {
+                          "day":  "Fri",
+                          "open":  "05:30",
+                          "close":  "23:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "08:00",
+                          "close":  "23:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "00:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Indoor track",
+                          "Climbing wall",
+                          "Locker rentals"
+                      ],
+        "currentBusyScore":  72,
+        "statusText":  "Busy"
+    },
+    {
+        "id":  "peap-building",
+        "name":  "PEAP Building",
+        "category":  "Rec",
+        "description":  "Performance and physical education activity building with multipurpose studios, cycling room, and kinesiology labs.",
+        "tags":  [
+                     "Classes",
+                     "Fitness"
+                 ],
+        "campusArea":  "Southside",
+        "address":  "632 Penberthy Blvd, College Station, TX 77843",
+        "imageUrl":  "/images/locations/peap.jpg",
+        "lat":  30.6105,
+        "lng":  -96.3387,
+        "hours":  [
+                      {
+                          "day":  "Mon–Fri",
+                          "open":  "06:00",
+                          "close":  "22:00"
+                      },
+                      {
+                          "day":  "Sat",
+                          "open":  "08:00",
+                          "close":  "18:00"
+                      },
+                      {
+                          "day":  "Sun",
+                          "open":  "10:00",
+                          "close":  "20:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Group fitness studios",
+                          "Locker rooms",
+                          "Cycling room"
+                      ],
+        "currentBusyScore":  47,
+        "statusText":  "Moderate"
+    },
+    {
+        "id":  "msc-lounge",
+        "name":  "MSC Lounge",
+        "category":  "Building",
+        "description":  "Comfortable lounge space inside the MSC Flag Room popular for meetups, studying, and people watching.",
+        "tags":  [
+                     "Central",
+                     "Meetups"
+                 ],
+        "campusArea":  "Central Campus",
+        "address":  "Memorial Student Center, College Station, TX 77843",
+        "imageUrl":  "/images/locations/msc-lounge.jpg",
+        "placeId":  "ChIJzwdj6EBBRoYRgY9ofuUBeH0",
+        "amenities":  [
+                          "Soft seating",
+                          "Piano performances",
+                          "Nearby food court"
+                      ],
+        "currentBusyScore":  33,
+        "statusText":  "Quiet"
+    },
+    {
+        "id":  "msc-career-booths",
+        "name":  "Career Booths at MSC",
+        "category":  "Events",
+        "description":  "Weekly employer meet-and-greet booths in the MSC Flag Room offering networking and internship leads.",
+        "tags":  [
+                     "Networking",
+                     "Internships"
+                 ],
+        "campusArea":  "Central Campus",
+        "address":  "Memorial Student Center, 275 Joe Routt Blvd, College Station, TX 77843",
+        "imageUrl":  "/images/locations/msc-career.jpg",
+        "placeId":  "ChIJzwdj6EBBRoYRgY9ofuUBeH0",
+        "hours":  [
+                      {
+                          "day":  "Wed",
+                          "open":  "10:00",
+                          "close":  "15:00"
+                      },
+                      {
+                          "day":  "Thu",
+                          "open":  "10:00",
+                          "close":  "15:00"
+                      }
+                  ],
+        "amenities":  [
+                          "Professional headshots",
+                          "Employer swag",
+                          "Resume reviews"
+                      ],
+        "currentBusyScore":  35,
+        "statusText":  "Moderate"
+    }
+]

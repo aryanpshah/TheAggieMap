@@ -1,8 +1,7 @@
 "use client";
 
-import { MouseEvent, useCallback } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
@@ -11,6 +10,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { alpha } from "@mui/material/styles";
 import type { ForYouItem } from "../../data/forYouSeed";
+import { DetailLinkButton } from "../DetailLinkButton";
 
 type ForYouTileProps = {
   item: ForYouItem;
@@ -45,14 +45,6 @@ export default function ForYouTile({
 
     router.push(item.href);
   }, [item.href, item.id, onTileClick, router]);
-
-  const handleButtonClick = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      handleNavigate();
-    },
-    [handleNavigate],
-  );
 
   return (
     <Card
@@ -133,15 +125,13 @@ export default function ForYouTile({
             </Stack>
           )}
 
-          <Button
-            variant="contained"
+          <DetailLinkButton
+            id={item.id}
+            label="See details"
             size="small"
-            color="primary"
-            onClick={handleButtonClick}
-            sx={{ alignSelf: "flex-start", mt: "auto" }}
-          >
-            See details
-          </Button>
+            ariaLabel={`Open details for ${item.name}`}
+            onClickCapture={(event) => event.stopPropagation()}
+          />
         </CardContent>
       </CardActionArea>
     </Card>
