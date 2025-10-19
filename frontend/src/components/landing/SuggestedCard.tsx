@@ -45,6 +45,13 @@ export default function SuggestedCard({ card }: SuggestedCardProps) {
         flexDirection: "column",
         height: "100%",
         backgroundColor: "background.paper",
+        transition: (theme) => theme.transitions.create(["transform", "box-shadow"], {
+          duration: theme.transitions.duration.shorter,
+        }),
+        "&:hover": {
+          transform: "translateY(-6px)",
+          boxShadow: "0 12px 28px rgba(80,0,0,0.18)",
+        },
       }}
     >
       <CardMedia

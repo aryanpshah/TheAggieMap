@@ -1,20 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import CardHeader from "@mui/material/CardHeader";
-import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Shell from "../layout/Shell";
 import CrowdPingForm, { type CrowdPingFormValues } from "../../components/crowdping/CrowdPingForm";
 import { useReferenceLocation } from "../../hooks/useReferenceLocation";
-import { toCTIsoString } from "../../utils/datetime";
 import type { LatLng } from "../../utils/distance";
 
 type SnackbarState = {
@@ -28,31 +24,7 @@ export default function CrowdPingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState<SnackbarState | null>(null);
-  const [observedAt, setObservedAt] = useState(() => toCTIsoString(new Date()));
   const [formKey, setFormKey] = useState(0);
-
-  const locationChip = useMemo(() => {
-    if (status === "pending") {
-      return (
-        <Stack direction="row" spacing={1} alignItems="center">
-          <CircularProgress size={16} />
-          <Typography variant="body2" color="text.secondary">
-            Locating you...
-          </Typography>
-        </Stack>
-      );
-    }
-    return (
-      <Chip
-        label={
-          status === "granted" ? "Using your location" : "Using Southside Commons"
-        }
-        variant="outlined"
-        color={status === "granted" ? "primary" : "default"}
-        sx={{ fontWeight: 600 }}
-      />
-    );
-  }, [status]);
 
   const resolveCoord = (): LatLng | null => {
     if (status === "granted" && reference) {
@@ -74,7 +46,6 @@ export default function CrowdPingPage() {
       },
       vibe: values.vibe,
       notes: values.notes,
-      observedAt: toCTIsoString(new Date()),
       coord,
       source: "user",
     };
@@ -95,7 +66,6 @@ export default function CrowdPingPage() {
       }
 
       setFormKey((prev) => prev + 1);
-      setObservedAt(toCTIsoString(new Date()));
       setSnackbar({ open: true, message: "Thanks! Your crowd ping was submitted.", severity: "success" });
     } catch (error) {
       setSubmitError((error as Error).message ?? "Could not submit right now.");
@@ -128,10 +98,9 @@ export default function CrowdPingPage() {
                 Crowd Ping
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Share a quick snapshot of your spot on campus.
+                Share a quick pulse on the crowd around you.
               </Typography>
             </Box>
-            {locationChip}
           </Stack>
 
           {locationError && (
@@ -141,26 +110,14 @@ export default function CrowdPingPage() {
           )}
 
           <Card
-            elevation={0}
+            elevation={4}
             sx={{
-              borderRadius: 4,
+              borderRadius: 0,
               boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
               border: (theme) => `1px solid ${theme.palette.divider}`,
             }}
           >
-            <CardHeader
-              title={
-                <Typography variant="h6" sx={{ fontWeight: 700, color: "primary.main" }}>
-                  Tell us about the scene
-                </Typography>
-              }
-              subheader={
-                <Typography variant="body2" color="text.secondary">
-                  Observed at {observedAt}
-                </Typography>
-              }
-            />
-            <CardContent sx={{ pt: 0 }}>
+            <CardContent>
               <CrowdPingForm
                 key={formKey}
                 onSubmit={handleSubmit}
@@ -182,3 +139,8 @@ export default function CrowdPingPage() {
     </Shell>
   );
 }
+
+
+
+
+

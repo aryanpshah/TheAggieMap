@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
@@ -19,7 +19,6 @@ import EventCalendar, { type CalendarViewType } from "../../components/events/Ev
 import EventDrawer from "../../components/events/EventDrawer";
 import { EVENTS_SEED, type CampusEvent } from "../../data/eventsSeed";
 import { createCalendarEvent } from "../../lib/api";
-import { toCompactOffset } from "../../utils/datetime";
 
 type ViewOption = "month" | "week" | "list";
 
@@ -54,7 +53,6 @@ export default function EventsPage() {
     message: "",
     severity: "success",
   });
-  const [saving, setSaving] = useState(false);
 
   const categories = useMemo(() => ["All", ...new Set(EVENTS_SEED.map((event) => event.category))], []);
 
@@ -95,7 +93,7 @@ export default function EventsPage() {
     }
   };
 
-  const handleSaveToBackend = async (event: CampusEvent) => {
+  /*const handleSaveToBackend = async (event: CampusEvent) => {
     setSaving(true);
     try {
       const payload = {
@@ -130,7 +128,7 @@ export default function EventsPage() {
     } finally {
       setSaving(false);
     }
-  };
+  };*/
 
   const handleCopyLink = () => {
     setSnackbar({
@@ -171,7 +169,7 @@ export default function EventsPage() {
                 Events
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                What’s happening around campus.
+                {"What's happening around campus."}
               </Typography>
             </Stack>
             <Stack
@@ -188,10 +186,23 @@ export default function EventsPage() {
                 sx={{
                   bgcolor: "background.paper",
                   borderRadius: 999,
-                  "& .MuiToggleButton-root": {
+                  p: 0.5,
+                  columnGap: 1,
+                  display: "inline-flex",
+                  boxShadow: "inset 0 0 0 1px rgba(80,0,0,0.12)",
+                  "& .MuiToggleButtonGroup-grouped": {
                     borderRadius: 999,
                     textTransform: "none",
                     fontWeight: 600,
+                    minWidth: 80,
+                    px: 2.5,
+                    py: 0.5,
+                    border: "1px solid",
+                    borderColor: (theme) => `${theme.palette.primary.main}33`,
+                    margin: 0,
+                  },
+                  "& .MuiToggleButtonGroup-grouped:not(:first-of-type)": {
+                    marginLeft: 0,
                   },
                 }}
               >
@@ -206,7 +217,7 @@ export default function EventsPage() {
                 onChange={(event) => setKeyword(event.target.value)}
                 inputProps={{ "aria-label": "Search events" }}
               />
-              <FormControl size="small">
+              <FormControl size="small" sx={{ minWidth: 160 }}>
                 <InputLabel id="events-category-label">Category</InputLabel>
                 <Select
                   labelId="events-category-label"
@@ -239,10 +250,8 @@ export default function EventsPage() {
         event={selectedEvent}
         onClose={() => setDrawerOpen(false)}
         onAddToGoogle={handleAddToGoogle}
-        onSaveToBackend={handleSaveToBackend}
         onCopyLink={handleCopyLink}
         onShare={handleShare}
-        saving={saving}
       />
 
       <Snackbar
@@ -258,3 +267,9 @@ export default function EventsPage() {
     </Shell>
   );
 }
+
+
+
+
+
+

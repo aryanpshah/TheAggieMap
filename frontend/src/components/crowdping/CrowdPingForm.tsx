@@ -25,7 +25,6 @@ const CAMPUS_SPOTS = [
   "Sbisa Dining Hall",
   "Southside Commons",
   "Evans Library",
-  "Evans Library (4th Floor Quiet)",
   "Zachry Engineering Education Complex",
   "Memorial Student Center",
   "Student Recreation Center",
@@ -172,7 +171,7 @@ export default function CrowdPingForm({
                 {...params}
                 label="Campus spot"
                 required
-                helperText="Examples: Evans Library, Southside Commons, MSC Flag Room"
+                helperText="Examples: Southside Commons, MSC Flag Room"
               />
             )}
           />

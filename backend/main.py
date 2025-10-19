@@ -325,8 +325,8 @@ class TAMUFacilityTracker:
 
         return result
 
-	def ask_perplexity(self, prompt: str):
-        	# Define the system prompt
+    def ask_perplexity(self, prompt: str):
+        # Define the system prompt
         system_prompt = """
         You are a TAMU campus assistant that returns structured data only.
 
@@ -338,9 +338,10 @@ class TAMUFacilityTracker:
         - Do not include any extra strings, messages, or formatting outside the list.
         - Do not hallucinate; rely only on provided data.
         """
-	        messages = [
-	            {"role": "system", "content": system_prompt},
-        	    {"role": "user", "content": f"""
+        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"""
             User Query: {prompt}
             Here is the live TAMU data:
             {self.data}

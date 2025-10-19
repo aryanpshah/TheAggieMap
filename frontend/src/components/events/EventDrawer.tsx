@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef } from "react";
 import Box from "@mui/material/Box";
@@ -21,10 +21,8 @@ export interface EventDrawerProps {
   event: CampusEvent | null;
   onClose: () => void;
   onAddToGoogle: (event: CampusEvent) => void;
-  onSaveToBackend: (event: CampusEvent) => void;
   onCopyLink?: (event: CampusEvent) => void;
   onShare?: (event: CampusEvent) => void;
-  saving?: boolean;
 }
 
 export default function EventDrawer({
@@ -32,10 +30,8 @@ export default function EventDrawer({
   event,
   onClose,
   onAddToGoogle,
-  onSaveToBackend,
   onCopyLink,
   onShare,
-  saving = false,
 }: EventDrawerProps) {
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -171,21 +167,6 @@ export default function EventDrawer({
           >
             Add to Google Calendar
           </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="large"
-            fullWidth
-            disabled={!event || saving}
-            onClick={() => {
-              if (event) {
-                onSaveToBackend(event);
-              }
-            }}
-            sx={{ fontWeight: 700, borderRadius: 3 }}
-          >
-            {saving ? "Saving..." : "Save to My Calendar"}
-          </Button>
           <Stack direction="row" spacing={1} justifyContent="space-between">
             <Button
               variant="text"
@@ -218,3 +199,18 @@ export default function EventDrawer({
     </Drawer>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -127,7 +127,7 @@ export default function EventCalendar({
     <Card
       elevation={0}
       sx={{
-        borderRadius: 4,
+        borderRadius: 0,
         border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
         boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
         height: "min(75vh, calc(100vh - 220px))",
@@ -157,7 +157,7 @@ export default function EventCalendar({
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
             {rangeLabel}
           </Typography>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
             <Button
               size="small"
               variant="contained"
@@ -266,5 +266,6 @@ export default function EventCalendar({
     </Card>
   );
 }
+
 
 
