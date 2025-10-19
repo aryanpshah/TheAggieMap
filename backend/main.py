@@ -413,3 +413,36 @@ def create_event(event: EventRequest):
     event_dict = event.dict()
     link = generate_google_calendar_link(event_dict)
     return {"message": "Google Calendar link opened on the server!", "link": link}
+
+import pytz
+
+@app.get("/get-event-requests", response_model=List[EventRequest])
+def get_event_requests():
+    """
+    Endpoint to return a list of events formatted as EventRequest dictionaries.
+    """
+    raw_events = tracker.fetch_event_data(limit=10)  # Adjust limit as needed
+    formatted_events = []
+
+    for event in raw_events:
+        try:
+            # Convert readable time back to datetime object
+            start_dt = datetime.strptime(event["start_time"], "%Y-%m-%d %I:%M %p")
+            end_dt = datetime.strptime(event["end_time"], "%Y-%m-%d %I:%M %p")
+
+            # Format to RFC5545-compliant Google Calendar format: YYYYMMDDTHHMMSS±HHMM
+            tz = pytz.timezone("America/Chicago")  # Adjust to your local timezone
+            start_str = start_dt.astimezone(tz).strftime("%Y%m%dT%H%M%S%z")
+            end_str = end_dt.astimezone(tz).strftime("%Y%m%dT%H%M%S%z")
+
+            formatted_events.append(EventRequest(
+                text=event["title"],
+                start=start_str,
+                end=end_str,
+                details=event["summary"],
+                location=event["location"]
+            ))
+        except Exception as e:
+            print(f"⚠️ Failed to format event: {e}")
+
+    return formatted_events
