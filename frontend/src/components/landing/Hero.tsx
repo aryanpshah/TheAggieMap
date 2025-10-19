@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
@@ -11,29 +10,40 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
+import CircularProgress from "@mui/material/CircularProgress";
 import { Search, Mic } from "lucide-react";
 import * as analytics from "../../lib/analytics";
 
 type HeroProps = {
   query: string;
   onQueryChange: (query: string) => void;
+  onSubmit: (query: string) => Promise<void>;
+  response?: string;
+  loadingResponse?: boolean;
+  errorMessage?: string | null;
 };
 
-export default function Hero({ query, onQueryChange }: HeroProps) {
-  const router = useRouter();
+export default function Hero({
+  query,
+  onQueryChange,
+  onSubmit,
+  response,
+  loadingResponse = false,
+  errorMessage = null,
+}: HeroProps) {
   const [value, setValue] = useState(query);
 
   useEffect(() => {
     setValue(query);
   }, [query]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextQuery = value.trim();
     analytics.search_submitted(nextQuery);
     onQueryChange(nextQuery);
     if (nextQuery) {
-      router.push(`/map?query=${encodeURIComponent(nextQuery)}`);
+      await onSubmit(nextQuery);
     }
   };
 
@@ -168,9 +178,49 @@ export default function Hero({ query, onQueryChange }: HeroProps) {
             See Dining Halls
           </Button>
         </Stack>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Built for Aggies. Powered by your campus.
-        </Typography>
+        <Stack spacing={1.5} sx={{ width: "100%" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Built for Aggies. Powered by your campus.
+          </Typography>
+          {(loadingResponse || response || errorMessage) && (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                border: (theme) => `1px solid ${theme.palette.primary.main}22`,
+                bgcolor: "background.paper",
+                textAlign: "left",
+                minWidth: { xs: "100%", sm: 520 },
+              }}
+            >
+              {loadingResponse && (
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <CircularProgress size={20} color="primary" />
+                  <Typography variant="body2" color="text.secondary">
+                    Gathering campus insights...
+                  </Typography>
+                </Stack>
+              )}
+              {!loadingResponse && errorMessage && (
+                <Typography variant="body2" color="error.main">
+                  {errorMessage}
+                </Typography>
+              )}
+              {!loadingResponse && !errorMessage && response && (
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                    color: "text.primary",
+                  }}
+                >
+                  {response}
+                </Typography>
+              )}
+            </Paper>
+          )}
+        </Stack>
       </Stack>
     </Box>
   );

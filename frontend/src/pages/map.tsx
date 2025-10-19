@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -14,7 +14,8 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import Shell from "../app/layout/Shell";
-import { SAMPLE_CAPACITY, type BackendItem } from "../data/sampleCapacity";
+import { SAMPLE_CAPACITY } from "../data/sampleCapacity";
+import { fetchOccupancy, type OccupancyRecord } from "../lib/api";
 import { useGeocoder, SOUTHSIDE_COMMONS } from "../hooks/useGeocoder";
 import { LocationProvider, useLocationContext } from "../context/LocationContext";
 import { CAPACITY_THRESHOLDS, parseCapacity } from "../utils/capacity";
@@ -36,10 +37,23 @@ const Google3D = dynamic(() => import("../components/map/Google3D"), {
 type ViewMode = "2d" | "3d";
 
 const LEGEND = [
-  { label: `≤ ${CAPACITY_THRESHOLDS.green}`, color: "#2E7D32" },
-  { label: `≤ ${CAPACITY_THRESHOLDS.yellow}`, color: "#ED6C02" },
-  { label: "> 75", color: "#C62828" },
+  { label: `≤ ${CAPACITY_THRESHOLDS.green}%`, color: "#2E7D32" },
+  { label: `≤ ${CAPACITY_THRESHOLDS.yellow}%`, color: "#ED6C02" },
+  { label: `> ${CAPACITY_THRESHOLDS.yellow}%`, color: "#C62828" },
 ];
+
+interface MapPoint {
+  name: string;
+  capacity: number;
+  coord: LatLng;
+  distanceText?: string;
+  directionsUrl: string;
+}
+
+interface SourceItem {
+  name: string;
+  percent: number;
+}
 
 function resolveApiKey(): string | undefined {
   if (typeof process !== "undefined") {
@@ -51,16 +65,8 @@ function resolveApiKey(): string | undefined {
   return undefined;
 }
 
-interface MapPoint {
-  name: string;
-  capacity: number;
-  coord: LatLng;
-  distanceText?: string;
-  directionsUrl: string;
-}
-
 function buildPoints(
-  data: BackendItem[],
+  data: SourceItem[],
   coords: Map<string, LatLng>,
   reference: LatLng | undefined,
 ): MapPoint[] {
@@ -68,11 +74,9 @@ function buildPoints(
 
   data.forEach((item) => {
     const coord = coords.get(item.name);
-    if (!coord) {
-      return;
-    }
+    if (!coord) return;
 
-    const capacity = parseCapacity(item.capacityValue);
+    const capacity = item.percent;
     let distanceText: string | undefined;
     let directionsUrl = "";
 
@@ -97,16 +101,71 @@ function buildPoints(
 
 function MapContent() {
   const [viewMode, setViewMode] = useState<ViewMode>("2d");
+  const [occupancy, setOccupancy] = useState<OccupancyRecord[]>([]);
+  const [loadingOccupancy, setLoadingOccupancy] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   const googleMapsKey = resolveApiKey();
   const { userCoords } = useLocationContext();
 
-  const backendData = SAMPLE_CAPACITY;
-  const names = useMemo(() => backendData.map((item) => item.name), [backendData]);
+  useEffect(() => {
+    let cancelled = false;
 
-  const { coordsByName, unresolved, isLoading, error } = useGeocoder(
-    names,
-    googleMapsKey,
+    const loadOccupancy = async () => {
+      setLoadingOccupancy(true);
+      setFetchError(null);
+      try {
+        const data = await fetchOccupancy();
+        if (!cancelled) {
+          setOccupancy(data);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setFetchError((error as Error).message ?? "Unable to load occupancy data.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingOccupancy(false);
+        }
+      }
+    };
+
+    loadOccupancy();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const fallbackItems = useMemo<SourceItem[]>(
+    () =>
+      SAMPLE_CAPACITY.map((item) => ({
+        name: item.name,
+        percent: parseCapacity(item.capacityValue),
+      })),
+    [],
   );
+
+  const sourceItems = useMemo<SourceItem[]>(() => {
+    if (occupancy.length > 0) {
+      return occupancy.map((record) => ({
+        name: record.location,
+        percent: record.percent_full,
+      }));
+    }
+    if (!loadingOccupancy && fetchError) {
+      return fallbackItems;
+    }
+    return [];
+  }, [occupancy, loadingOccupancy, fetchError, fallbackItems]);
+
+  const names = useMemo(
+    () => sourceItems.map((item) => item.name),
+    [sourceItems],
+  );
+
+  const { coordsByName, unresolved, isLoading: geocodeLoading, error: geocodeError } =
+    useGeocoder(names, googleMapsKey);
 
   const southside = coordsByName.get(SOUTHSIDE_COMMONS);
 
@@ -118,8 +177,8 @@ function MapContent() {
   }, [userCoords, southside]);
 
   const points = useMemo(
-    () => buildPoints(backendData, coordsByName, reference),
-    [backendData, coordsByName, reference],
+    () => buildPoints(sourceItems, coordsByName, reference),
+    [sourceItems, coordsByName, reference],
   );
 
   const center: LatLng | undefined = useMemo(() => {
@@ -131,9 +190,9 @@ function MapContent() {
 
   const unresolvedNames = useMemo(
     () =>
-      unresolved.filter(
-        (name) => name.toLowerCase() !== SOUTHSIDE_COMMONS.toLowerCase(),
-      ),
+      unresolved
+        .map((name) => name.trim())
+        .filter((name) => name && name !== SOUTHSIDE_COMMONS),
     [unresolved],
   );
 
@@ -141,7 +200,8 @@ function MapContent() {
     ? "Missing Google Maps API key. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY or VITE_GOOGLE_MAPS_API_KEY."
     : null;
 
-  const showLoadingState = isLoading && !reference;
+  const showLoading =
+    loadingOccupancy || geocodeLoading || (!reference && points.length === 0);
 
   return (
     <Shell activePath="/map">
@@ -203,15 +263,21 @@ function MapContent() {
           </Stack>
         </Stack>
 
+        {fetchError && !loadingOccupancy && (
+          <Alert severity="error" sx={{ borderRadius: 3 }}>
+            {fetchError}
+          </Alert>
+        )}
+
         {apiKeyError && (
           <Alert severity="error" sx={{ borderRadius: 3 }}>
             {apiKeyError}
           </Alert>
         )}
 
-        {error && !apiKeyError && (
+        {geocodeError && !apiKeyError && (
           <Alert severity="error" sx={{ borderRadius: 3 }}>
-            {error}
+            {geocodeError}
           </Alert>
         )}
 
@@ -237,7 +303,7 @@ function MapContent() {
               flexDirection: "column",
             }}
           >
-            {showLoadingState && (
+            {showLoading && (
               <Stack
                 spacing={2}
                 alignItems="center"
@@ -251,19 +317,19 @@ function MapContent() {
               </Stack>
             )}
 
-            {!showLoadingState &&
+            {!showLoading &&
               center &&
               reference &&
               points.length > 0 &&
               viewMode === "2d" && <Leaflet2D points={points} center={center} />}
 
-            {!showLoadingState &&
+            {!showLoading &&
               center &&
               reference &&
               points.length > 0 &&
               viewMode === "3d" && <Google3D points={points} center={center} />}
 
-            {!showLoadingState && (!reference || points.length === 0) && (
+            {!showLoading && (!reference || points.length === 0) && (
               <Stack
                 spacing={2}
                 alignItems="center"

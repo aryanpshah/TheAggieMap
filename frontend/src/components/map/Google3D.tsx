@@ -152,7 +152,7 @@ export default function Google3D({ points, center }: Google3DProps) {
         container.appendChild(nameEl);
 
         const capacityEl = document.createElement("div");
-        capacityEl.textContent = `Capacity: ${point.capacity}`;
+        capacityEl.textContent = `Capacity: ${point.capacity.toFixed(1)}%`;
         capacityEl.style.fontSize = "13px";
         capacityEl.style.color = "#5F5F5F";
         container.appendChild(capacityEl);
@@ -176,9 +176,15 @@ export default function Google3D({ points, center }: Google3DProps) {
         buttonEl.style.borderRadius = "999px";
         buttonEl.style.cursor = "pointer";
         buttonEl.style.fontWeight = "600";
-        buttonEl.addEventListener("click", () => {
-          window.open(point.directionsUrl, "_blank", "noopener");
-        });
+        if (point.directionsUrl) {
+          buttonEl.addEventListener("click", () => {
+            window.open(point.directionsUrl, "_blank", "noopener");
+          });
+        } else {
+          buttonEl.disabled = true;
+          buttonEl.style.opacity = "0.6";
+          buttonEl.style.cursor = "not-allowed";
+        }
         container.appendChild(buttonEl);
 
         infoWindowRef.current.setContent(container);

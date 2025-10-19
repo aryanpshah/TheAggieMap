@@ -3,6 +3,15 @@ import type { SuggestedCard } from "./types";
 export const BASE_API_URL =
   process.env.NEXT_PUBLIC_BASE_API_URL ?? "http://localhost:8000";
 
+export type OccupancyRecord = {
+  location: string;
+  percent_full: number;
+};
+
+type AskResponse = {
+  response: string;
+};
+
 const MOCK_SUGGESTIONS: SuggestedCard[] = [
   {
     id: "evans-2f",
@@ -81,4 +90,46 @@ export async function getSuggested({
   }
 
   return results;
+}
+
+export async function fetchOccupancy(): Promise<OccupancyRecord[]> {
+  try {
+    const response = await fetch(`${BASE_API_URL}/retrieve`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch occupancy data (${response.status})`);
+    }
+
+    const data = (await response.json()) as OccupancyRecord[];
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Failed to fetch occupancy data", error);
+    throw error;
+  }
+}
+
+export async function askPerplexity(query: string): Promise<string> {
+  try {
+    const response = await fetch(`${BASE_API_URL}/ask`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to ask assistant (${response.status})`);
+    }
+
+    const data = (await response.json()) as AskResponse;
+    return data.response ?? "";
+  } catch (error) {
+    console.error("Failed to ask Perplexity", error);
+    throw error;
+  }
 }

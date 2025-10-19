@@ -65,7 +65,7 @@ export default function Leaflet2D({ points, center, zoom = 16 }: Leaflet2DProps)
                     {point.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Capacity: {point.capacity}
+                    Capacity: {point.capacity.toFixed(1)}%
                   </Typography>
                   {point.distanceText && (
                     <Typography variant="body2" color="text.secondary">

@@ -13,7 +13,7 @@ import SidebarDrawer from "../components/layout/SidebarDrawer";
 import Hero from "../components/landing/Hero";
 import QuickFilters from "../components/landing/QuickFilters";
 import SuggestedGrid from "../components/landing/SuggestedGrid";
-import { getSuggested } from "../lib/api";
+import { askPerplexity, getSuggested } from "../lib/api";
 import type { SuggestedCard } from "../lib/types";
 
 const FILTER_OPTIONS = [
@@ -30,6 +30,9 @@ export default function HomePage() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [suggested, setSuggested] = useState<SuggestedCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [assistantResponse, setAssistantResponse] = useState<string>("");
+  const [assistantLoading, setAssistantLoading] = useState(false);
+  const [assistantError, setAssistantError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -55,12 +58,38 @@ export default function HomePage() {
 
   const selectedFilters = useMemo(() => new Set(activeFilters), [activeFilters]);
 
+  const handleHeroSubmit = useCallback(
+    async (input: string) => {
+      setAssistantLoading(true);
+      setAssistantError(null);
+      try {
+        const result = await askPerplexity(input);
+        setAssistantResponse(result.trim());
+      } catch (error) {
+        setAssistantResponse("");
+        setAssistantError(
+          (error as Error).message ?? "Unable to retrieve campus insights right now.",
+        );
+      } finally {
+        setAssistantLoading(false);
+      }
+    },
+    [],
+  );
+
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
       <TopBar onMenuClick={() => setDrawerOpen(true)} />
       <SidebarDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <Box component="main" sx={{ pt: { xs: 8, md: 9 } }}>
-        <Hero query={query} onQueryChange={setQuery} />
+        <Hero
+          query={query}
+          onQueryChange={setQuery}
+          onSubmit={handleHeroSubmit}
+          response={assistantResponse}
+          loadingResponse={assistantLoading}
+          errorMessage={assistantError}
+        />
         <Container maxWidth="lg" sx={{ mt: 6, mb: 10 }}>
           <Stack spacing={6}>
             <QuickFilters

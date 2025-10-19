@@ -1,6 +1,6 @@
 export const CAPACITY_THRESHOLDS = {
   green: 33,
-  yellow: 75,
+  yellow: 66,
 } as const;
 
 export type CapacityColor = "green" | "yellow" | "red";
@@ -22,8 +22,8 @@ export function capacityToColor(value: number): CapacityColor {
   return "red";
 }
 
-export function radiusFor(_value: number): number {
-  void _value;
-  // TODO: scale marker radius by capacity; using dynamic sizing later.
-  return 8;
+export function radiusFor(value: number): number {
+  if (!Number.isFinite(value)) return 8;
+  const clamped = Math.max(0, value);
+  return Math.min(40, Math.max(10, clamped / 2));
 }
