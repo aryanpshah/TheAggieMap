@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import NextLink from "next/link";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
+import Toolbar from "@mui/material/Toolbar";
 import Divider from "@mui/material/Divider";
 import MuiLink from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
@@ -81,7 +82,8 @@ export default function HomePage() {
     <Box sx={{ minHeight: "100vh", backgroundColor: "background.default" }}>
       <TopBar onMenuClick={() => setDrawerOpen(true)} />
       <SidebarDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-      <Box component="main" sx={{ pt: { xs: 8, md: 9 } }}>
+      <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }} />
+      <Box component="main">
         <Hero
           query={query}
           onQueryChange={setQuery}

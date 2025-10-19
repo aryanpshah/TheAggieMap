@@ -21,7 +21,7 @@ export default function Shell({ activePath, children }: ShellProps) {
       <SidebarDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <Box sx={{ display: "flex", flexGrow: 1 }}>
         <Box sx={{ display: { xs: "none", md: "flex" }, flexDirection: "column" }}>
-          <Toolbar sx={{ mb: 2 }} />
+          <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }} />
           <Sidebar activePath={activePath} />
         </Box>
         <Box
@@ -30,12 +30,13 @@ export default function Shell({ activePath, children }: ShellProps) {
             flexGrow: 1,
             minHeight: "100vh",
             px: { xs: 2, md: 3 },
-            py: 2,
+            pt: 0,
+            pb: { xs: 3, md: 4 },
             display: "flex",
             flexDirection: "column",
           }}
         >
-          <Toolbar sx={{ mb: { xs: 2, md: 3 } }} />
+          <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }} />
           <Box
             sx={{
               flexGrow: 1,
