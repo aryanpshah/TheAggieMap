@@ -30,10 +30,12 @@ const NAV_LINKS = [
 type SidebarDrawerProps = {
   open: boolean;
   onClose: () => void;
+  activePath?: string;
 };
 
-export default function SidebarDrawer({ open, onClose }: SidebarDrawerProps) {
+export default function SidebarDrawer({ open, onClose, activePath }: SidebarDrawerProps) {
   const { user } = useUser();
+  const normalizedActive = activePath?.toLowerCase();
 
   return (
     <Drawer
@@ -80,22 +82,35 @@ export default function SidebarDrawer({ open, onClose }: SidebarDrawerProps) {
         <Divider />
         <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
           <List>
-            {NAV_LINKS.map((item) => (
-              <ListItemButton
-                key={item.label}
-                component={Link}
-                href={item.href}
-                onClick={onClose}
-                sx={{
-                  fontWeight: 600,
-                  "&:hover": {
-                    backgroundColor: "secondary.light",
-                  },
-                }}
-              >
-                <ListItemText primary={item.label} />
-              </ListItemButton>
-            ))}
+            {NAV_LINKS.map((item) => {
+              const isActive =
+                normalizedActive === item.href.toLowerCase() ||
+                normalizedActive?.replace(/\/$/, "") === item.href.toLowerCase();
+              return (
+                <ListItemButton
+                  key={item.label}
+                  component={Link}
+                  href={item.href}
+                  onClick={onClose}
+                  selected={isActive}
+                  sx={{
+                    fontWeight: 600,
+                    borderRadius: 2,
+                    mx: 1,
+                    my: 0.5,
+                    "&.Mui-selected": {
+                      bgcolor: "#50000014",
+                      color: "primary.main",
+                    },
+                    "&:hover": {
+                      backgroundColor: "secondary.light",
+                    },
+                  }}
+                >
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+              );
+            })}
           </List>
         </Box>
         <Divider />

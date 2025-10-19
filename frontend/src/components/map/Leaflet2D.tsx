@@ -11,8 +11,9 @@ import Typography from "@mui/material/Typography";
 import type { LatLng } from "../../utils/coords";
 import { capacityToColor, radiusFor } from "../../utils/capacity";
 
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-const ATTRIBUTION = "&copy; OpenStreetMap contributors &copy; CARTO";
+const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 const TAMU_CENTER: LatLng = { lat: 30.6153, lng: -96.341 };
 const DEFAULT_ZOOM = 15.5;
@@ -68,9 +69,6 @@ export default function Leaflet2D({ points, center, zoom = DEFAULT_ZOOM }: Leafl
         width: "100%",
         borderRadius: 4,
         overflow: "hidden",
-        "& .leaflet-container": {
-          filter: "saturate(0.85) contrast(1.02)",
-        },
       }}
     >
       <MapContainer

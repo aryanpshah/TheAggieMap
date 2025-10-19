@@ -6,7 +6,6 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
@@ -16,7 +15,7 @@ import { SAMPLE_CAPACITY } from "../../data/sampleCapacity";
 import { fetchOccupancy, type OccupancyRecord } from "../../lib/api";
 import { useGeocoder, SOUTHSIDE_COMMONS } from "../../hooks/useGeocoder";
 import { useLocationContext } from "../../context/LocationContext";
-import { CAPACITY_THRESHOLDS, parseCapacity } from "../../utils/capacity";
+import { parseCapacity } from "../../utils/capacity";
 import {
   formatMiles1dp,
   haversineDistanceMeters,
@@ -28,12 +27,6 @@ import { buildDirectionsUrl } from "../../utils/directions";
 const Leaflet2D = dynamic(() => import("../../components/map/Leaflet2D"), {
   ssr: false,
 });
-
-const LEGEND = [
-  { label: `<= ${CAPACITY_THRESHOLDS.green}%`, color: "#2E7D32" },
-  { label: `<= ${CAPACITY_THRESHOLDS.yellow}%`, color: "#ED6C02" },
-  { label: `> ${CAPACITY_THRESHOLDS.yellow}%`, color: "#C62828" },
-];
 
 interface MapPoint {
   name: string;
@@ -198,37 +191,13 @@ function MapContent() {
   return (
     <Shell activePath="/map">
       <Stack spacing={3}>
-        <Stack spacing={1}>
+        <Stack spacing={1} sx={{ mt: { xs: 2, md: 3 } }}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: "primary.main" }}>
             Map
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Live campus hotspots
           </Typography>
-        </Stack>
-
-        <Stack direction={{ xs: "column", md: "row" }} alignItems={{ xs: "flex-start", md: "center" }} justifyContent="flex-end" spacing={2}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Legend
-            </Typography>
-            <Stack direction="row" spacing={1}>
-              {LEGEND.map((item) => (
-                <Chip
-                  key={item.label}
-                  label={item.label}
-                  size="small"
-                  sx={{
-                    backgroundColor: `${item.color}14`,
-                    border: `1px solid ${item.color}`,
-                    color: "text.primary",
-                    fontWeight: 600,
-                    borderRadius: "999px",
-                  }}
-                />
-              ))}
-            </Stack>
-          </Stack>
         </Stack>
 
         {fetchError && !loadingOccupancy && (
