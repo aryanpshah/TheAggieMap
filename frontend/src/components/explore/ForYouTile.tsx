@@ -17,9 +17,6 @@ type ForYouTileProps = {
   distanceLabel?: string | null;
   reserveDistanceSpace?: boolean;
   onTileClick?: (itemId: string) => void;
-  disableNavigation?: boolean;
-  tabIndex?: number;
-  ariaHidden?: boolean;
 };
 
 function isExternalLink(href: string): boolean {
@@ -31,18 +28,10 @@ export default function ForYouTile({
   distanceLabel,
   reserveDistanceSpace = false,
   onTileClick,
-  disableNavigation = false,
-  tabIndex,
-  ariaHidden,
 }: ForYouTileProps) {
   const router = useRouter();
-  const cardRole = disableNavigation ? "presentation" : "listitem";
 
   const handleNavigate = useCallback(() => {
-    if (disableNavigation) {
-      return;
-    }
-
     onTileClick?.(item.id);
 
     if (!item.href) {
@@ -60,16 +49,14 @@ export default function ForYouTile({
   const handleButtonClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
-      if (!disableNavigation) {
-        handleNavigate();
-      }
+      handleNavigate();
     },
-    [disableNavigation, handleNavigate],
+    [handleNavigate],
   );
 
   return (
     <Card
-      role={cardRole}
+      role="listitem"
       elevation={3}
       sx={{
         borderRadius: 3,
@@ -89,17 +76,10 @@ export default function ForYouTile({
           outlineOffset: 4,
         },
       }}
-      aria-hidden={ariaHidden}
     >
       <CardActionArea
         onClick={handleNavigate}
-        sx={{
-          borderRadius: 3,
-          height: "100%",
-          pointerEvents: disableNavigation ? "none" : undefined,
-        }}
-        tabIndex={tabIndex}
-        aria-hidden={ariaHidden}
+        sx={{ borderRadius: 3, height: "100%" }}
       >
         <CardContent
           sx={{
@@ -158,7 +138,6 @@ export default function ForYouTile({
             size="small"
             color="primary"
             onClick={handleButtonClick}
-            disabled={disableNavigation}
             sx={{ alignSelf: "flex-start", mt: "auto" }}
           >
             See details

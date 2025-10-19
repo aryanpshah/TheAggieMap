@@ -93,8 +93,6 @@ export default function ForYou({
   const [seed, setSeed] = useState<number>(() => getSessionSeed(SEED_STORAGE_KEY));
   const [items, setItems] = useState<ForYouItem[]>([]);
   const railRef = useRef<HTMLDivElement | null>(null);
-  const [isAutoScrollPaused, setIsAutoScrollPaused] = useState(false);
-  const resumeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -112,32 +110,6 @@ export default function ForYou({
     const hour = new Date().getHours();
     return hour >= 17 || hour < 5;
   }, []);
-
-  const cancelScheduledResume = useCallback(() => {
-    if (resumeTimeoutRef.current !== null) {
-      window.clearTimeout(resumeTimeoutRef.current);
-      resumeTimeoutRef.current = null;
-    }
-  }, []);
-
-  const pauseAutoScroll = useCallback(() => {
-    cancelScheduledResume();
-    setIsAutoScrollPaused(true);
-  }, [cancelScheduledResume]);
-
-  const resumeAutoScroll = useCallback(
-    (delay = 1800) => {
-      if (prefersReducedMotion) {
-        return;
-      }
-      cancelScheduledResume();
-      resumeTimeoutRef.current = window.setTimeout(() => {
-        setIsAutoScrollPaused(false);
-        resumeTimeoutRef.current = null;
-      }, delay);
-    },
-    [cancelScheduledResume, prefersReducedMotion],
-  );
 
   useEffect(() => {
     const personalizedPool = applyPersonalization(FOR_YOU_POOL, {
@@ -169,111 +141,6 @@ export default function ForYou({
     setSeed(nextSeed);
   }, []);
 
-  useEffect(
-    () => () => {
-      cancelScheduledResume();
-    },
-    [cancelScheduledResume],
-  );
-
-  useEffect(() => {
-    if (!railRef.current) {
-      return;
-    }
-    railRef.current.scrollLeft = 0;
-  }, [items, seed]);
-
-  const displayItems = useMemo(() => {
-    if (items.length > 1) {
-      return [...items, ...items];
-    }
-    return items;
-  }, [items]);
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      return;
-    }
-    const railEl = railRef.current;
-    if (!railEl || items.length === 0) {
-      return;
-    }
-    const isLooping = items.length > 1;
-    let frameId: number;
-    let lastTimestamp: number | null = null;
-    const speed = 0.06; // pixels per ms (~60px/s)
-
-    const tick = (timestamp: number) => {
-      if (!railRef.current) {
-        return;
-      }
-      if (isAutoScrollPaused) {
-        lastTimestamp = timestamp;
-        frameId = requestAnimationFrame(tick);
-        return;
-      }
-      if (lastTimestamp === null) {
-        lastTimestamp = timestamp;
-      }
-      const delta = timestamp - lastTimestamp;
-      lastTimestamp = timestamp;
-
-      const el = railRef.current;
-      if (!el) {
-        return;
-      }
-
-      const loopWidth = isLooping
-        ? el.scrollWidth / 2
-        : Math.max(el.scrollWidth - el.clientWidth, 0);
-
-      if (loopWidth <= 0) {
-        frameId = requestAnimationFrame(tick);
-        return;
-      }
-
-      let next = el.scrollLeft + delta * speed;
-
-      if (isLooping) {
-        while (next >= loopWidth) {
-          next -= loopWidth;
-        }
-      } else if (next >= loopWidth) {
-        next = 0;
-      }
-
-      el.scrollLeft = next;
-      frameId = requestAnimationFrame(tick);
-    };
-
-    frameId = requestAnimationFrame(tick);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-    };
-  }, [displayItems, isAutoScrollPaused, items.length, prefersReducedMotion]);
-
-  const handleMouseEnter = useCallback(() => {
-    pauseAutoScroll();
-  }, [pauseAutoScroll]);
-
-  const handleMouseLeave = useCallback(() => {
-    resumeAutoScroll();
-  }, [resumeAutoScroll]);
-
-  const handleFocus = useCallback(() => {
-    pauseAutoScroll();
-  }, [pauseAutoScroll]);
-
-  const handleBlur = useCallback(() => {
-    resumeAutoScroll();
-  }, [resumeAutoScroll]);
-
-  const handleTransientInteraction = useCallback(() => {
-    pauseAutoScroll();
-    resumeAutoScroll(2500);
-  }, [pauseAutoScroll, resumeAutoScroll]);
-
   const handleRailKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
       if (!railRef.current) {
@@ -285,7 +152,6 @@ export default function ForYou({
       }
 
       event.preventDefault();
-      handleTransientInteraction();
       const direction = event.key === "ArrowRight" ? 1 : -1;
       const { clientWidth } = railRef.current;
       const step = Math.max(clientWidth * 0.7, 200);
@@ -294,7 +160,7 @@ export default function ForYou({
         behavior: prefersReducedMotion ? "auto" : "smooth",
       });
     },
-    [handleTransientInteraction, prefersReducedMotion],
+    [prefersReducedMotion],
   );
 
   const reserveDistanceSpace = status === "pending";
@@ -371,13 +237,6 @@ export default function ForYou({
           aria-label={`${title} carousel`}
           tabIndex={0}
           onKeyDown={handleRailKeyDown}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onPointerDown={handleTransientInteraction}
-          onWheel={handleTransientInteraction}
-          onTouchStart={handleTransientInteraction}
           sx={{
             display: "grid",
             gridAutoFlow: "column",
@@ -401,34 +260,27 @@ export default function ForYou({
             },
           }}
         >
-          {displayItems.map((item, index) => {
-            const isDuplicate = index >= items.length;
-            return (
-              <Box
-                key={`${item.id}-${index}`}
-                sx={{
-                  minWidth: {
-                    xs: "80%",
-                    sm: "45%",
-                    md: "33%",
-                    lg: "25%",
-                  },
-                  scrollSnapAlign: "start",
-                }}
-                aria-hidden={isDuplicate ? "true" : undefined}
-              >
-                <ForYouTile
-                  item={item}
-                  distanceLabel={distanceLookup[item.id]}
-                  reserveDistanceSpace={reserveDistanceSpace && !isDuplicate}
-                  onTileClick={isDuplicate ? undefined : onTileClick}
-                  disableNavigation={isDuplicate}
-                  tabIndex={isDuplicate ? -1 : undefined}
-                  ariaHidden={isDuplicate}
-                />
-              </Box>
-            );
-          })}
+          {items.map((item) => (
+            <Box
+              key={item.id}
+              sx={{
+                minWidth: {
+                  xs: "80%",
+                  sm: "45%",
+                  md: "33%",
+                  lg: "25%",
+                },
+                scrollSnapAlign: "start",
+              }}
+            >
+              <ForYouTile
+                item={item}
+                distanceLabel={distanceLookup[item.id]}
+                reserveDistanceSpace={reserveDistanceSpace}
+                onTileClick={onTileClick}
+              />
+            </Box>
+          ))}
         </Box>
 
         <Box
