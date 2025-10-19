@@ -1,7 +1,6 @@
 import type { SuggestedCard } from "./types";
 
-export const BASE_API_URL =
-  process.env.NEXT_PUBLIC_BASE_API_URL ?? "http://localhost:8000";
+export const BASE_API_URL = "http://142.93.69.165:8000";
 
 export type OccupancyRecord = {
   location: string;
@@ -119,17 +118,17 @@ export async function askPerplexity(query: string): Promise<string> {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query: query }),
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to ask assistant (${response.status})`);
+      throw new Error(`Failed to get response from Perplexity (${response.status})`);
     }
 
     const data = (await response.json()) as AskResponse;
-    return data.response ?? "";
+    return data.response;
   } catch (error) {
-    console.error("Failed to ask Perplexity", error);
+    console.error("Failed to get response from Perplexity", error);
     throw error;
   }
 }
