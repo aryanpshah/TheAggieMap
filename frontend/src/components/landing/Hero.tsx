@@ -132,9 +132,9 @@ export default function Hero({
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
           <Button
             component={Link}
-            href="/map?type=study"
-            variant="contained"
-            color="primary"
+            href="/explore#study-section"
+            variant="outlined"
+            color="secondary"
             sx={{
               px: 4,
               py: 1.5,

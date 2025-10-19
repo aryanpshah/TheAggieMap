@@ -13,6 +13,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { alpha } from "@mui/material/styles";
+import ForYou from "../../components/explore/ForYou";
 import Shell from "../layout/Shell";
 import {
   DINING_HALLS,
@@ -176,141 +177,147 @@ function ExploreContent() {
             </Alert>
           )}
 
-          {sections.map((section, index) => (
-            <Box key={section.key}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                sx={{ mb: 2 }}
-              >
-                <Stack direction="row" alignItems="center" spacing={1.5}>
+          <ForYou />
+
+          {sections.map((section, index) => {
+            const sectionId = section.key === "study" ? "study-section" : `${section.key}-section`;
+
+            return (
+              <Box key={section.key} id={sectionId}>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{ mb: 2 }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1.5}>
+                    <Box
+                      sx={{
+                        width: 4,
+                        height: 24,
+                        borderRadius: 9999,
+                        bgcolor: "primary.main",
+                      }}
+                    />
+                    <Typography
+                      variant="h6"
+                      component="h2"
+                      color="text.primary"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      {section.title}
+                    </Typography>
+                  </Stack>
+                  <Button variant="text" size="small" color="primary">
+                    View all
+                  </Button>
+                </Stack>
+
+                <Box sx={{ position: "relative" }}>
+                  <Box
+                    role="list"
+                    aria-label={section.ariaLabel}
+                    sx={{
+                      display: "grid",
+                      gridAutoFlow: "column",
+                      gridAutoColumns: {
+                        xs: "80%",
+                        sm: "45%",
+                        md: "33%",
+                        lg: "25%",
+                      },
+                      columnGap: 2,
+                      overflowX: "auto",
+                      scrollSnapType: "x mandatory",
+                      WebkitOverflowScrolling: "touch",
+                      pb: 1,
+                      pr: 0.5,
+                    }}
+                  >
+                    {section.items.map((item) => {
+                      const distanceLabel = getDistanceLabel(effectiveReference, item.coord);
+                      const ariaDistance = distanceLabel ?? "distance unavailable";
+                      return (
+                        <Card
+                          key={item.name}
+                          role="listitem"
+                          sx={{
+                            minWidth: {
+                              xs: "80%",
+                              sm: "45%",
+                              md: "33%",
+                              lg: "25%",
+                            },
+                            scrollSnapAlign: "start",
+                            borderRadius: "16px",
+                            boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+                            border: `1px solid ${alpha("#500000", 0.06)}`,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                          }}
+                          aria-label={`${item.name}, ${ariaDistance}`}
+                        >
+                          <CardContent sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <Typography
+                                variant="h6"
+                                component="p"
+                                noWrap
+                                sx={{ fontWeight: 700, flexGrow: 1 }}
+                              >
+                                {item.name}
+                              </Typography>
+                              {distanceLabel && (
+                                <Chip
+                                  aria-label="Distance from your location"
+                                  label={distanceLabel}
+                                  size="small"
+                                  color="primary"
+                                  variant="outlined"
+                                  sx={{ fontWeight: 600 }}
+                                />
+                              )}
+                            </Stack>
+
+                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                              {item.tags.map((tag) => (
+                                <Chip key={tag} label={tag} size="small" variant="outlined" />
+                              ))}
+                            </Stack>
+
+                            <Button variant="contained" size="small" color="primary">
+                              Details
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </Box>
+
                   <Box
                     sx={{
-                      width: 4,
-                      height: 24,
-                      borderRadius: 9999,
-                      bgcolor: "primary.main",
+                      pointerEvents: "none",
+                      position: "absolute",
+                      top: 0,
+                      bottom: 0,
+                      right: 0,
+                      width: 40,
+                      background: (theme) =>
+                        `linear-gradient(270deg, ${theme.palette.background.default} 0%, ${alpha(
+                          theme.palette.background.default,
+                          0,
+                        )} 100%)`,
                     }}
                   />
-                  <Typography
-                    variant="h6"
-                    component="h2"
-                    color="text.primary"
-                    sx={{ fontWeight: 600 }}
-                  >
-                    {section.title}
-                  </Typography>
-                </Stack>
-                <Button variant="text" size="small" color="primary">
-                  View all
-                </Button>
-              </Stack>
-
-              <Box sx={{ position: "relative" }}>
-                <Box
-                  role="list"
-                  aria-label={section.ariaLabel}
-                  sx={{
-                    display: "grid",
-                    gridAutoFlow: "column",
-                    gridAutoColumns: {
-                      xs: "80%",
-                      sm: "45%",
-                      md: "33%",
-                      lg: "25%",
-                    },
-                    columnGap: 2,
-                    overflowX: "auto",
-                    scrollSnapType: "x mandatory",
-                    WebkitOverflowScrolling: "touch",
-                    pb: 1,
-                    pr: 0.5,
-                  }}
-                >
-                  {section.items.map((item) => {
-                    const distanceLabel = getDistanceLabel(effectiveReference, item.coord);
-                    const ariaDistance = distanceLabel ?? "distance unavailable";
-                    return (
-                      <Card
-                        key={item.name}
-                        role="listitem"
-                        sx={{
-                          minWidth: {
-                            xs: "80%",
-                            sm: "45%",
-                            md: "33%",
-                            lg: "25%",
-                          },
-                          scrollSnapAlign: "start",
-                          borderRadius: "16px",
-                          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-                          border: `1px solid ${alpha("#500000", 0.06)}`,
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                        }}
-                        aria-label={`${item.name}, ${ariaDistance}`}
-                      >
-                        <CardContent sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography
-                              variant="h6"
-                              component="p"
-                              noWrap
-                              sx={{ fontWeight: 700, flexGrow: 1 }}
-                            >
-                              {item.name}
-                            </Typography>
-                            {distanceLabel && (
-                              <Chip
-                                aria-label="Distance from your location"
-                                label={distanceLabel}
-                                size="small"
-                                color="primary"
-                                variant="outlined"
-                                sx={{ fontWeight: 600 }}
-                              />
-                            )}
-                          </Stack>
-
-                          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                            {item.tags.map((tag) => (
-                              <Chip key={tag} label={tag} size="small" variant="outlined" />
-                            ))}
-                          </Stack>
-
-                          <Button variant="contained" size="small" color="primary">
-                            Details
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
                 </Box>
 
-                <Box
-                  sx={{
-                    pointerEvents: "none",
-                    position: "absolute",
-                    top: 0,
-                    bottom: 0,
-                    right: 0,
-                    width: 40,
-                    background: (theme) =>
-                      `linear-gradient(270deg, ${theme.palette.background.default} 0%, ${alpha(
-                        theme.palette.background.default,
-                        0,
-                      )} 100%)`,
-                  }}
-                />
+                {index < sections.length - 1 && (
+                  <Divider sx={{ my: 3, borderColor: (theme) => alpha(theme.palette.primary.main, 0.08) }} />
+                )}
               </Box>
-
-              {index < sections.length - 1 && (
-                <Divider sx={{ my: 3, borderColor: (theme) => alpha(theme.palette.primary.main, 0.08) }} />
-              )}
-            </Box>
-          ))}
+            );
+          })}
         </Stack>
       </Box>
     </Shell>
