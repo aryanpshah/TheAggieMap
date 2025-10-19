@@ -92,7 +92,7 @@ export function useGeocoder(names: string[], apiKey: string | undefined): Geocod
     abortRef.current = controller;
 
     const uniqueNames = Array.from(
-      new Set([SOUTHSIDE_COMMONS, ...names.filter((name) => name.trim().length > 0)]),
+      new Set([SOUTHSIDE_COMMONS, ...names.filter((name) => (name || "").trim().length > 0)]),
     );
 
     let cancelled = false;
