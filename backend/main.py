@@ -360,6 +360,7 @@ class TAMUFacilityTracker:
         return response.choices[0].message.content
 
 
+
 # Load tracker and data once at startup
 tracker = TAMUFacilityTracker()
 tracker.load_all_data()
@@ -412,5 +413,3 @@ def create_event(event: EventRequest):
     event_dict = event.dict()
     link = generate_google_calendar_link(event_dict)
     return {"message": "Google Calendar link opened on the server!", "link": link}
-
-
