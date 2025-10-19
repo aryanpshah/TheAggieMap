@@ -9,10 +9,11 @@
 }
 
 html,
-body {
+body,
+#__next {
   margin: 0;
   padding: 0;
-  background-color: #f8f4e3;
+  background-color: #faf9f7;
   color: #2b2b2b;
   font-family: var(--font-inter, "Inter"), "Inter", "Segoe UI", sans-serif;
   min-height: 100%;
@@ -31,7 +32,7 @@ a {
       rgba(80, 0, 0, 0.14) 0%,
       rgba(80, 0, 0, 0.06) 100%
     ),
-    #f8f4e3;
+    #faf9f7;
 }
 
 .maroonGradient::after {
@@ -40,10 +41,10 @@ a {
   inset: -20%;
   background: radial-gradient(
       circle at 20% 20%,
-      rgba(80, 0, 0, 0.24),
+      rgba(80, 0, 0, 0.18),
       transparent 60%
     ),
-    radial-gradient(circle at 80% 10%, rgba(185, 153, 94, 0.16), transparent 55%);
+    radial-gradient(circle at 80% 10%, rgba(185, 153, 94, 0.14), transparent 55%);
   animation: maroonGlow 12s ease-in-out infinite alternate;
   z-index: 0;
 }

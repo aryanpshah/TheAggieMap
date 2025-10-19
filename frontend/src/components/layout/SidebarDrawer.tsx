@@ -17,12 +17,8 @@ const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Map", href: "/map" },
   { label: "Explore", href: "/explore" },
-  { label: "Crowd Ping", href: "/crowdping" },
   { label: "Events", href: "/events" },
-  { label: "Dining Halls", href: "/map?type=dining" },
-  { label: "Study Spots", href: "/map?type=study" },
-  { label: "Favorites", href: "/favorites" },
-  { label: "Preferences", href: "/preferences" },
+  { label: "Crowd Ping", href: "/crowdping" },
   { label: "Privacy", href: "/privacy" },
   { label: "About", href: "/about" },
 ];
@@ -93,6 +89,7 @@ export default function SidebarDrawer({ open, onClose, activePath }: SidebarDraw
                   href={item.href}
                   onClick={onClose}
                   selected={isActive}
+                  aria-label={`${item.label} page`}
                   sx={{
                     fontWeight: 600,
                     borderRadius: 2,

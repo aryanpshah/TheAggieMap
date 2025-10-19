@@ -41,9 +41,9 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
             width: "100%",
             maxWidth: (theme) => theme.breakpoints.values.lg,
             mx: "auto",
-            px: { xs: 1.5, md: 2 },
+            px: { xs: 0.5, md: 1.25 },
             display: "grid",
-            gridTemplateColumns: "88px 1fr auto",
+            gridTemplateColumns: "64px 1fr auto",
             alignItems: "center",
             minHeight: (theme) => theme.mixins.toolbar.minHeight,
           }}

@@ -13,6 +13,7 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { alpha } from "@mui/material/styles";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 import ForYou from "../../components/explore/ForYou";
 import Shell from "../layout/Shell";
 import {
@@ -37,6 +38,8 @@ type SectionConfig = {
   ariaLabel: string;
   items: ExploreItem[];
 };
+
+const CONTROL_HEIGHT = 50;
 
 function getDistanceLabel(reference: LatLng | undefined, coord: LatLng | undefined): string | null {
   if (!reference || !coord) {
@@ -104,6 +107,13 @@ function ExploreContent() {
   }, [debouncedQuery]);
 
   const effectiveReference = status === "fallback" ? SOUTHSIDE_COMMONS_COORD : reference;
+  const locationReady = status !== "pending";
+  const locationLabel =
+    status === "pending"
+      ? "Locating..."
+      : status === "granted"
+      ? "Using your location"
+      : "Using Southside Commons";
 
   return (
     <Shell activePath="/explore">
@@ -137,25 +147,37 @@ function ExploreContent() {
               alignItems="center"
               sx={{ width: { xs: "100%", sm: "auto" } }}
             >
-              <Box>
-                {status === "pending" ? (
-                  <Stack direction="row" spacing={1} alignItems="center">
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={
+                  locationReady ? (
+                    <MyLocationIcon fontSize="small" />
+                  ) : (
                     <CircularProgress size={16} />
-                    <Typography variant="body2" color="text.secondary">
-                      Locating… (8s max)
-                    </Typography>
-                  </Stack>
-                ) : (
-                  <Chip
-                    label={status === "granted" ? "Using your location" : "Using Southside Commons"}
-                    variant="outlined"
-                    color={status === "granted" ? "primary" : "default"}
-                    sx={{ fontWeight: 600 }}
-                  />
-                )}
-              </Box>
+                  )
+                }
+                disabled={!locationReady}
+                sx={{
+                  height: CONTROL_HEIGHT,
+                  borderRadius: 999,
+                  px: 2,
+                  fontWeight: 600,
+                  whiteSpace: "nowrap",
+                  borderWidth: 2,
+                  ":hover": {
+                    backgroundColor: "rgba(80,0,0,0.06)",
+                  },
+                  ":disabled": {
+                    borderColor: "rgba(80,0,0,0.28)",
+                    color: "text.disabled",
+                  },
+                }}
+              >
+                {locationLabel}
+              </Button>
               <TextField
-                size="small"
+                size="medium"
                 placeholder="Search places..."
                 variant="outlined"
                 value={searchValue}
@@ -163,7 +185,9 @@ function ExploreContent() {
                 sx={{
                   minWidth: { xs: "100%", sm: 260 },
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: 3,
+                    height: CONTROL_HEIGHT,
+                    borderRadius: 999,
+                    pl: 2,
                   },
                 }}
                 inputProps={{ "aria-label": "Search places" }}
@@ -187,7 +211,7 @@ function ExploreContent() {
                 <Stack
                   direction="row"
                   alignItems="center"
-                  justifyContent="space-between"
+                  justifyContent="flex-start"
                   sx={{ mb: 2 }}
                 >
                   <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -208,9 +232,6 @@ function ExploreContent() {
                       {section.title}
                     </Typography>
                   </Stack>
-                  <Button variant="text" size="small" color="primary">
-                    View all
-                  </Button>
                 </Stack>
 
                 <Box sx={{ position: "relative" }}>

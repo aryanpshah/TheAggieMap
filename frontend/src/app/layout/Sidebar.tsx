@@ -18,8 +18,10 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Map", href: "/map" },
   { label: "Explore", href: "/explore" },
-  { label: "Crowd Ping", href: "/crowdping" },
   { label: "Events", href: "/events" },
+  { label: "Crowd Ping", href: "/crowdping" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "About", href: "/about" },
 ];
 
 export interface SidebarProps {
@@ -64,6 +66,7 @@ export default function Sidebar({ activePath }: SidebarProps) {
               component={Link}
               href={item.href}
               selected={isActive}
+              aria-label={`${item.label} page`}
               sx={{
                 borderRadius: 2,
                 mx: 1,

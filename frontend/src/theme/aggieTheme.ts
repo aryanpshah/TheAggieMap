@@ -48,6 +48,7 @@ const aggieTheme = createTheme({
     button: {
       fontWeight: 600,
       textTransform: "none",
+      lineHeight: 1.2,
     },
   },
   components: {
