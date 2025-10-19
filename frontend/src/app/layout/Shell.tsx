@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import Toolbar from "@mui/material/Toolbar";
+import SidebarDrawer from "../../components/layout/SidebarDrawer";
+import TopBar from "../../components/layout/TopBar";
 import Sidebar from "./Sidebar";
 
 export interface ShellProps {
@@ -11,49 +13,39 @@ export interface ShellProps {
 }
 
 export default function Shell({ activePath, children }: ShellProps) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
-      <Sidebar activePath={activePath} />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-        }}
-      >
-        <Box
-          component="header"
-          sx={{
-            px: { xs: 3, md: 4 },
-            py: 3,
-            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-            bgcolor: "background.paper",
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-          }}
-        >
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Stack spacing={0.5}>
-              <Typography variant="subtitle2" sx={{ textTransform: "uppercase", color: "text.secondary" }}>
-                Navigation
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                The Aggie Map
-              </Typography>
-            </Stack>
-          </Stack>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+      <TopBar onMenuClick={() => setDrawerOpen(true)} />
+      <SidebarDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <Box sx={{ display: "flex", flexGrow: 1 }}>
+        <Box sx={{ display: { xs: "none", md: "flex" }, flexDirection: "column" }}>
+          <Toolbar sx={{ mb: 2 }} />
+          <Sidebar activePath={activePath} />
         </Box>
         <Box
+          component="main"
           sx={{
             flexGrow: 1,
-            px: { xs: 3, md: 4 },
-            py: { xs: 3, md: 4 },
+            minHeight: "100vh",
+            px: { xs: 2, md: 3 },
+            py: 2,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {children}
+          <Toolbar sx={{ mb: { xs: 2, md: 3 } }} />
+          <Box
+            sx={{
+              flexGrow: 1,
+              width: "100%",
+              maxWidth: (theme) => theme.breakpoints.values.xl,
+              mx: "auto",
+            }}
+          >
+            {children}
+          </Box>
         </Box>
       </Box>
     </Box>

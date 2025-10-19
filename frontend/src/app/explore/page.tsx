@@ -13,21 +13,21 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { alpha } from "@mui/material/styles";
-import Shell from "../app/layout/Shell";
+import Shell from "../layout/Shell";
 import {
   DINING_HALLS,
   LIBRARIES,
   REC,
   STUDY_SPOTS,
   type ExploreItem,
-} from "../data/exploreSeed";
-import { useReferenceLocation } from "../hooks/useReferenceLocation";
+} from "../../data/exploreSeed";
+import { useReferenceLocation } from "../../hooks/useReferenceLocation";
 import {
   formatMiles1dp,
   haversineMeters,
   metersToMiles,
   type LatLng,
-} from "../utils/distance";
+} from "../../utils/distance";
 
 type SectionConfig = {
   key: string;

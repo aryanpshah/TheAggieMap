@@ -32,18 +32,19 @@ export default function Sidebar({ activePath }: SidebarProps) {
     <Box
       component="nav"
       sx={{
-        width: { xs: 220, md: 256 },
+        width: { xs: 0, md: 280 },
         flexShrink: 0,
         bgcolor: "background.paper",
         borderRight: (theme) => `1px solid ${theme.palette.divider}`,
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
+        minHeight: { md: "calc(100vh - 64px)" },
         position: "sticky",
-        top: 0,
+        top: { md: "64px" },
+        px: 1,
       }}
     >
-      <Stack spacing={0.5} sx={{ p: 3 }}>
+      <Stack spacing={0.5} sx={{ px: 2.5, py: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 700, color: "primary.main" }}>
           The Aggie Map
         </Typography>
@@ -51,7 +52,7 @@ export default function Sidebar({ activePath }: SidebarProps) {
           Aggieland&apos;s One Stop Shop
         </Typography>
       </Stack>
-      <List sx={{ px: 1 }}>
+      <List sx={{ flexGrow: 1 }}>
         {NAV_ITEMS.map((item) => {
           const isActive =
             normalizedActive === item.href.toLowerCase() ||

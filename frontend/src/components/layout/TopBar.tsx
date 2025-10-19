@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 
 type TopBarProps = {
@@ -16,6 +17,14 @@ type TopBarProps = {
 };
 
 export default function TopBar({ onMenuClick }: TopBarProps) {
+  const { user } = useUser();
+  const displayName =
+    user?.firstName ??
+    user?.username ??
+    user?.fullName ??
+    user?.primaryEmailAddress?.emailAddress ??
+    "Aggie";
+
   return (
     <AppBar
       position="fixed"
@@ -76,7 +85,17 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
             </Stack>
           </SignedOut>
           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Avatar
+                src={user?.imageUrl ?? undefined}
+                alt={displayName}
+                sx={{ width: 32, height: 32 }}
+              />
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                Howdy, {displayName}
+              </Typography>
+              <UserButton afterSignOutUrl="/" />
+            </Stack>
           </SignedIn>
         </Box>
       </Toolbar>

@@ -10,35 +10,28 @@ import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import Shell from "../app/layout/Shell";
-import { SAMPLE_CAPACITY } from "../data/sampleCapacity";
-import { fetchOccupancy, type OccupancyRecord } from "../lib/api";
-import { useGeocoder, SOUTHSIDE_COMMONS } from "../hooks/useGeocoder";
-import { LocationProvider, useLocationContext } from "../context/LocationContext";
-import { CAPACITY_THRESHOLDS, parseCapacity } from "../utils/capacity";
+import Shell from "../layout/Shell";
+import { SAMPLE_CAPACITY } from "../../data/sampleCapacity";
+import { fetchOccupancy, type OccupancyRecord } from "../../lib/api";
+import { useGeocoder, SOUTHSIDE_COMMONS } from "../../hooks/useGeocoder";
+import { useLocationContext } from "../../context/LocationContext";
+import { CAPACITY_THRESHOLDS, parseCapacity } from "../../utils/capacity";
 import {
   formatMiles1dp,
   haversineDistanceMeters,
   metersToMiles,
   type LatLng,
-} from "../utils/coords";
-import { buildDirectionsUrl } from "../utils/directions";
+} from "../../utils/coords";
+import { buildDirectionsUrl } from "../../utils/directions";
 
-const Leaflet2D = dynamic(() => import("../components/map/Leaflet2D"), {
+const Leaflet2D = dynamic(() => import("../../components/map/Leaflet2D"), {
   ssr: false,
 });
-const Google3D = dynamic(() => import("../components/map/Google3D"), {
-  ssr: false,
-});
-
-type ViewMode = "2d" | "3d";
 
 const LEGEND = [
-  { label: `≤ ${CAPACITY_THRESHOLDS.green}%`, color: "#2E7D32" },
-  { label: `≤ ${CAPACITY_THRESHOLDS.yellow}%`, color: "#ED6C02" },
+  { label: `<= ${CAPACITY_THRESHOLDS.green}%`, color: "#2E7D32" },
+  { label: `<= ${CAPACITY_THRESHOLDS.yellow}%`, color: "#ED6C02" },
   { label: `> ${CAPACITY_THRESHOLDS.yellow}%`, color: "#C62828" },
 ];
 
@@ -100,7 +93,6 @@ function buildPoints(
 }
 
 function MapContent() {
-  const [viewMode, setViewMode] = useState<ViewMode>("2d");
   const [occupancy, setOccupancy] = useState<OccupancyRecord[]>([]);
   const [loadingOccupancy, setLoadingOccupancy] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -215,31 +207,7 @@ function MapContent() {
           </Typography>
         </Stack>
 
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          alignItems={{ xs: "flex-start", md: "center" }}
-          justifyContent="space-between"
-          spacing={2}
-        >
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(_event, value: ViewMode | null) => {
-              if (value) setViewMode(value);
-            }}
-            size="small"
-            color="primary"
-            sx={{
-              "& .MuiToggleButton-root": {
-                fontWeight: 600,
-                px: 2.5,
-              },
-            }}
-          >
-            <ToggleButton value="2d">2D</ToggleButton>
-            <ToggleButton value="3d">3D</ToggleButton>
-          </ToggleButtonGroup>
-
+        <Stack direction={{ xs: "column", md: "row" }} alignItems={{ xs: "flex-start", md: "center" }} justifyContent="flex-end" spacing={2}>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
               Legend
@@ -317,17 +285,9 @@ function MapContent() {
               </Stack>
             )}
 
-            {!showLoading &&
-              center &&
-              reference &&
-              points.length > 0 &&
-              viewMode === "2d" && <Leaflet2D points={points} center={center} />}
-
-            {!showLoading &&
-              center &&
-              reference &&
-              points.length > 0 &&
-              viewMode === "3d" && <Google3D points={points} center={center} />}
+            {!showLoading && center && reference && points.length > 0 && (
+              <Leaflet2D points={points} center={center} />
+            )}
 
             {!showLoading && (!reference || points.length === 0) && (
               <Stack
@@ -355,9 +315,5 @@ function MapContent() {
 }
 
 export default function MapPage() {
-  return (
-    <LocationProvider>
-      <MapContent />
-    </LocationProvider>
-  );
+  return <MapContent />;
 }
