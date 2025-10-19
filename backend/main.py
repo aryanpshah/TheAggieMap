@@ -325,7 +325,7 @@ class TAMUFacilityTracker:
 
         return result
 
-	def ask_perplexity(self, prompt: str):
+    def ask_perplexity(self, prompt: str):
         # Define the system prompt
         system_prompt = """
         You are a TAMU campus assistant that returns structured data only.
@@ -358,6 +358,7 @@ class TAMUFacilityTracker:
         )
 
         return response.choices[0].message.content
+
 
 
 # Load tracker and data once at startup
@@ -412,5 +413,3 @@ def create_event(event: EventRequest):
     event_dict = event.dict()
     link = generate_google_calendar_link(event_dict)
     return {"message": "Google Calendar link opened on the server!", "link": link}
-
-
